@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Tizen.NET" Version="6.0.0.14995">
+			<ExcludeAssets>Runtime</ExcludeAssets>
+		</PackageReference>
+		<PackageReference Include="Tizen.NET.TV" Version="6.6.0.5599517">
+			<ExcludeAssets>Runtime</ExcludeAssets>
+		</PackageReference>
+	</ItemGroup>
+	</Project>

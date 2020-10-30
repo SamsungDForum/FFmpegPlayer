@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<manifest package="FFmpeg.player" version="1.0.0" api-version="5" xmlns="http://tizen.org/ns/packages">
+	<feature name="http://tizen.org/feature/screen.size.normal.1080.1920">true</feature>
+	<profile name="tv" />
+    <ui-application appid="FFmpeg.Player" exec="FFmpeg.Player.dll" multiple="false" nodisplay="false" taskmanage="true" type="dotnet" hw-acceleration="on" launch_mode="single">
+        <label>FFmpeg.Player</label>
+        <icon>FFmpeg.Player.png</icon>
+        <splash-screens />
+    </ui-application>
+    <shortcut-list />
+    <privileges>
+        <privilege>http://tizen.org/privilege/internet</privilege>
+        <privilege>http://developer.samsung.com/privilege/drmplay</privilege>
+        <privilege>http://developer.samsung.com/privilege/drminfo</privilege>
+        <privilege>http://developer.samsung.com/privilege/esplay</privilege>
+    </privileges>
+    <dependencies />
+    <provides-appdefined-privileges />
+</manifest>
