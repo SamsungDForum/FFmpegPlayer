@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <PackageReference Include="FFmpegBindings" Version="3.3.6" />
+    <PackageReference Include="System.Threading.Channels" Version="4.7.1" />
     <PackageReference Include="Tizen.NET" Version="6.0.0.14995">
 		  <ExcludeAssets>Runtime</ExcludeAssets>
 	  </PackageReference>
@@ -33,6 +34,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj" />
+    <ProjectReference Include="..\Demuxer\Demuxer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="PlatformPlayer\" />
+    <Folder Include="Player\" />
   </ItemGroup>
 
 </Project>

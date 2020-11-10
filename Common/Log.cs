@@ -22,80 +22,80 @@ namespace Common
 {
     public static class Log
     {
-        private const string _tag = "ffPlay";
-        private const string _empty = "";
+        private const string Tag = "ffPlay";
+        private const string Empty = "";
 
         public static void Verbose(
-            string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Verbose(_tag, message, file, method, line);
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Verbose(Tag, message, file, method, line);
 
         public static void Debug(
             string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Debug(_tag, message, file, method, line);
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Debug(Tag, message, file, method, line);
 
         public static void Info(
             string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Info(_tag, message, file, method, line);
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Info(Tag, message, file, method, line);
 
         public static void Warn(
             string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(_tag, message, file, method, line);
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(Tag, message, file, method, line);
 
         public static void Warn(
             Exception ex,
-            string message = _empty,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(_tag, $"{message} {ex}", file, method, line);
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(Tag, $"{message} {ex}", file, method, line);
 
         public static void Error(
             string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Error(_tag, message, file, method, line);
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Error(Tag, message, file, method, line);
 
         public static void Error(
             Exception ex,
-            string message = _empty,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(_tag, $"{message} {ex}", file, method, line);
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(Tag, $"{message} {ex}", file, method, line);
 
         public static void Fatal(
             string message,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Fatal(_tag, message, file, method, line);
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Fatal(Tag, message, file, method, line);
 
         public static void Fatal(
             Exception ex,
-            string message = _empty,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
-            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(_tag, $"{message} {ex}", file, method, line);
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
+            [CallerLineNumber] int line = 0) => Tizen.Log.Warn(Tag, $"{message} {ex}", file, method, line);
 
         public static void Enter(
-            string message = _empty,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
             [CallerLineNumber] int line = 0)
             => Tizen.Log.Debug(
-                _tag, ReferenceEquals(message, _empty) ? "Enter() ->" : $"Enter( {message} ) ->", file, method, line);
+                Tag, ReferenceEquals(message, Empty) ? "Enter() ->" : $"Enter( {message} ) ->", file, method, line);
 
         public static void Exit(
-            string message = _empty,
-            [CallerFilePath] string file = _empty,
-            [CallerMemberName] string method = _empty,
+            string message = Empty,
+            [CallerFilePath] string file = Empty,
+            [CallerMemberName] string method = Empty,
             [CallerLineNumber] int line = 0)
             => Tizen.Log.Debug(
-                _tag, ReferenceEquals(message, _empty) ? "Exit() <-" : $"Exit( {message} ) <-", file, method, line);
+                Tag, ReferenceEquals(message, Empty) ? "Exit() <-" : $"Exit( {message} ) <-", file, method, line);
     }
 }
