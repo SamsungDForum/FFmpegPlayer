@@ -17,34 +17,26 @@
 
 using System;
 using System.Threading;
-using ElmSharp;
-using Common;
+using System.Threading.Tasks;
+using FFmpegPlayer.DataProviders;
+using FFmpegPlayer.DataReaders;
 
-namespace FFmpeg.Player
+namespace FFmpegPlayer.DataPresenters
 {
-    public class Player : IDisposable
+    public enum SeekDirection
     {
-        private readonly Window _window;
-        private readonly CancellationTokenSource _playerCts;
-        private readonly SynchronizationContext _uiSyncContext;
+        Forward,
+        Backward
+    }
 
-        public Player(Window window)
-        {
-            _uiSyncContext = SynchronizationContext.Current;
-            _window = window;
-            _playerCts = new CancellationTokenSource();
-        }
-
-        public void Start(string url)
-        {
-
-        }
-
-        public void Dispose()
-        {
-            Log.Enter();
-            _playerCts.Cancel();
-            Log.Exit();
-        }
+    public abstract class DataPresenter : IDisposable
+    {
+        public abstract Task Open();
+        public abstract Task Seek(SeekDirection direction);
+        public abstract void Pause();
+        public abstract void Resume();
+        public abstract DataPresenter With(DataProvider dataProvider);
+        public abstract DataPresenter With(DataReader dataReader);
+        public abstract void Dispose();
     }
 }
