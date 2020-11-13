@@ -27,7 +27,7 @@ namespace FFmpegPlayer.DataReaders
 
     public abstract class DataReader : IDisposable
     {
-        public abstract IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate, CancellationToken token);
+        public abstract IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate);
         public abstract void WaitCompletion();
         public abstract void Dispose();
     }

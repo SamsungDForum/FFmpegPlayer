@@ -45,7 +45,7 @@ namespace FFmpegPlayer
             _eventChannel = new EventChannel<PlayerEvent>(_sessionCts.Token);
 
             _eventLoopTask = Task.Factory.StartNew(
-                () => EventLoopTask(presenter.With(_sessionCts.Token)),
+                () => EventLoopTask(presenter),
                 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning);
         }
 

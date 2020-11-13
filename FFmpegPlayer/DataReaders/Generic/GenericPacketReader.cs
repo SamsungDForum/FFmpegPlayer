@@ -26,7 +26,7 @@ namespace FFmpegPlayer.DataReaders.Generic
 {
     public class GenericDataReader : DataReader
     {
-        private CancellationTokenSource _linkedSessionCts;
+        private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
 
         private static async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
@@ -64,12 +64,12 @@ namespace FFmpegPlayer.DataReaders.Generic
             }
         }
 
-        public override IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate, CancellationToken token)
+        public override IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate)
         {
-            _linkedSessionCts = CancellationTokenSource.CreateLinkedTokenSource(token);
+            _readSessionCts = new CancellationTokenSource();
 
             _readLoopTaskTask = Task.Factory.StartNew(
-                () => ReadLoop(dataProvider, presentDelegate, _linkedSessionCts.Token),
+                () => ReadLoop(dataProvider, presentDelegate, _readSessionCts.Token),
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
 
             return this;
@@ -88,9 +88,9 @@ namespace FFmpegPlayer.DataReaders.Generic
         {
             Log.Enter();
 
-            _linkedSessionCts?.Cancel();
-            _linkedSessionCts?.Dispose();
-            _linkedSessionCts = null;
+            _readSessionCts?.Cancel();
+            _readSessionCts?.Dispose();
+            _readSessionCts = null;
 
             Log.Exit();
         }

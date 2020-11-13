@@ -98,6 +98,7 @@ namespace FFmpegPlayer
 
             // Start playback
             _ = _eventLoop.SendMessage(PlayerEvent.Open);
+            _window.Show();
 
             ReceivedAppControl control = e.ReceivedAppControl;
             if (control.IsReplyRequest)

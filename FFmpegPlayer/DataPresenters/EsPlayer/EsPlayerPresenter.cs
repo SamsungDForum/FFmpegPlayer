@@ -35,7 +35,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
         private static readonly TimeSpan SubmitFullDelay = TimeSpan.FromMilliseconds(150);
 
         private readonly Window _window;
-        private CancellationToken _token = CancellationToken.None;
+        //private CancellationToken _token = CancellationToken.None;
         private DataProvider _dataProvider;
         private DataReader _dataReader;
 
@@ -55,26 +55,25 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
             var openTask = _dataProvider.Open();
 
-            var player = CreateESplayer(_window);
+            _esPlayer = CreateESplayer(_window);
             Log.Info("Platform player created");
 
             var clipConfig = await openTask;
             Log.Info("Data provider opened");
 
             // Configure platform player and initiate playback.
-            var (readyToTransferTask, prepareAsyncTask) = PrepareESplayer(player, clipConfig.StreamConfigs);
+            var (readyToTransferTask, prepareAsyncTask) = PrepareESplayer(_esPlayer, clipConfig.StreamConfigs);
             await readyToTransferTask;
 
             // Start data transfer.
-            _esPlayer = player;
-            _readingSession = _dataReader.Create(_dataProvider, PresentPacket, _token);
+            _readingSession = _dataReader.Create(_dataProvider, PresentPacket);
             Log.Info("Transfer started");
 
             await prepareAsyncTask;
             Log.Info("PrepareAsync() completed");
 
             // Start playback.
-            player.Start();
+            _esPlayer.Start();
             Log.Info("Plyback started");
 
             Log.Exit();
@@ -101,7 +100,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             if (direction == SeekDirection.Forward)
             {
                 position += SeekDistance;
-                //TODO: Clip to max duration? Needed?
+                //TODO: Add cliping to max duration / max duration - TimeFrame
             }
             else
             {
@@ -123,7 +122,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             await Task.WhenAll(readyToTransferTask, seekDataTask);
 
             // data provider and ESPlayer ready to transfer.
-            var newSession = _dataReader.Create(_dataProvider, PresentPacket, _token);
+            var newSession = _dataReader.Create(_dataProvider, PresentPacket);
             Log.Info($"Transfer started. Data seek position {seekDataTask.Result}");
 
             // Wait for seek async completion.
@@ -172,7 +171,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             if (_readingSession == null)
             {
                 _esPlayer.Resume();
-                _readingSession = _dataReader.Create(_dataProvider, PresentPacket, _token);
+                _readingSession = _dataReader.Create(_dataProvider, PresentPacket);
 
                 Log.Info("Resumed");
             }
@@ -185,16 +184,6 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter("DataProvider");
 
             _dataProvider = dataProvider;
-
-            Log.Exit();
-            return this;
-        }
-
-        public override DataPresenter With(CancellationToken token)
-        {
-            Log.Enter("CancellationToken");
-
-            _token = token;
 
             Log.Exit();
             return this;
@@ -248,6 +237,8 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
                 // Cancellation when resubmission is required will result in packet loss.
             } while (status != SubmitStatus.Success && !token.IsCancellationRequested);
+
+            packet.Dispose();
         }
 
         private static ESPlayer CreateESplayer(Window playerWindow)
@@ -262,21 +253,19 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             player.ErrorOccurred += OnError;
             player.BufferStatusChanged += OnBufferStatusChanged;
 
-            playerWindow.Show();
-
             Log.Exit();
             return player;
         }
 
         private static void OnEos(object sender, EOSEventArgs eosArgs)
         {
+            // TODO: Add EOS handling - terminate EsPlayerPresenter.
             Log.Info("End Of Stream.");
         }
 
         private static void OnError(object sender, ErrorEventArgs errorArgs)
         {
             Log.Fatal($"Playbak error {errorArgs.ErrorType}");
-            throw new Exception($"Playbak error {errorArgs.ErrorType}");
         }
 
         private static void OnBufferStatusChanged(object sender, BufferStatusEventArgs bufferArgs)
@@ -306,7 +295,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             var readyToTransferTcs = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             int streamCount = streamConfigs.Count;
-            Log.Info($"PreperaingAsync( {streamCount} streams )");
+            Log.Info($"PreparingAsync( {streamCount} streams )");
             var prepareAsyncTask = player.PrepareAsync(OnReadyToPreapare);
 
             Log.Exit();

@@ -35,7 +35,6 @@ namespace FFmpegPlayer.DataPresenters
         public abstract Task Seek(SeekDirection direction);
         public abstract void Pause();
         public abstract void Resume();
-        public abstract DataPresenter With(CancellationToken token);
         public abstract DataPresenter With(DataProvider dataProvider);
         public abstract DataPresenter With(DataReader dataReader);
         public abstract void Dispose();
