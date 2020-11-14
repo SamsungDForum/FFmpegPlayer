@@ -26,10 +26,12 @@ namespace FFmpegPlayer.DataProviders
 {
     public abstract class DataProvider
     {
-        public abstract ClipConfiguration GetCurrentConfiguration();
+        public abstract ClipConfiguration CurrentConfiguration { get; protected set; }
         public abstract Task<ClipConfiguration> Open();
         public abstract Task<Packet> NextPacket(CancellationToken token);
         public abstract Task<TimeSpan> Seek(TimeSpan position);
+        public abstract Task Suspend();
+        public abstract Task Resume();
         public abstract DataProvider Add(params DataSource[] dataSources);
         public abstract void Dispose();
     }

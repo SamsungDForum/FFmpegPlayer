@@ -16,19 +16,19 @@
  */
 
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Demuxer.Common;
+using FFmpegPlayer.DataPresenters;
 using FFmpegPlayer.DataProviders;
 
 namespace FFmpegPlayer.DataReaders
 {
-    public delegate ValueTask PresentPacketDelegate(Packet packet, TimeSpan presentationDelay, CancellationToken token);
+    public delegate PresentPacketResult PresentPacketDelegate(Packet packet);
 
     public abstract class DataReader : IDisposable
     {
-        public abstract IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate);
-        public abstract void WaitCompletion();
+        public abstract Task SessionDisposal { get; }
+        public abstract IDisposable NewSession(DataProvider dataProvider, PresentPacketDelegate presentDelegate);
         public abstract void Dispose();
     }
 }

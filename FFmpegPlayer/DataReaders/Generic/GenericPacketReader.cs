@@ -19,69 +19,98 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using Demuxer.Common;
+using FFmpegPlayer.DataPresenters;
 using FFmpegPlayer.DataProviders;
-
 
 namespace FFmpegPlayer.DataReaders.Generic
 {
     public class GenericDataReader : DataReader
     {
+        private static readonly TimeSpan ResubmitDelay = TimeSpan.FromMilliseconds(150);
         private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
+
+        public override Task SessionDisposal
+        {
+            get { return _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask; }
+        }
 
         private static async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
         {
             Log.Enter();
-            var scheduler = new GenericScheduler();
 
+            var scheduler = new GenericScheduler();
+            Packet packet = default;
             try
             {
                 Log.Info("Started");
 
                 while (!token.IsCancellationRequested)
                 {
-                    var p = await dataProvider.NextPacket(token);
-                    if (p == default)
+                    // TODO: Add EOS support
+                    Log.Verbose("Reading packet");
+                    packet = await dataProvider.NextPacket(token);
+                    if (packet == default)
                     {
                         Log.Info("No data");
                         continue;
                     }
 
-                    // TODO: EOS processing.
-                    await presentPacket(p, scheduler.Schedule(p), token);
+                    var scheduleAfter = scheduler.Schedule(packet);
+                    if (scheduleAfter != default)
+                    {
+                        Log.Verbose($"{packet.StreamType}: {packet.Pts} delaying by {scheduleAfter}");
+                        await Task.Delay(scheduleAfter, token);
+                    }
+
+                    PresentPacketResult result = presentPacket(packet);
+                    while (result != PresentPacketResult.Success)
+                    {
+                        // packet will be disposed in finally block
+                        if (result == PresentPacketResult.Fail)
+                            return;
+
+                        await Task.Delay(ResubmitDelay, token);
+                        result = presentPacket(packet);
+                    }
+
+                    packet.Dispose();
+                    packet = default;
                 }
             }
             catch (OperationCanceledException)
             {
-                // silent ignore
+                Log.Info("Cancelled");
             }
             finally
             {
-                Log.Info("Disposing scheduler");
+                // Dispose abandoned packets.
+                if (packet != default)
+                {
+                    // Last chance scenario. Try pushing it. If cancellation was requested, we'll loose one packet less
+                    if (presentPacket(packet) != PresentPacketResult.Success)
+                        Log.Warn($"{packet.StreamType}: Abandoned packet {packet.Pts}");
+
+                    packet.Dispose();
+                }
+
+                Log.Info("Disposing packet scheduler");
                 scheduler.Dispose();
 
                 Log.Exit();
             }
         }
 
-        public override IDisposable Create(DataProvider dataProvider, PresentPacketDelegate presentDelegate)
+        public override IDisposable NewSession(DataProvider dataProvider, PresentPacketDelegate presentPacket)
         {
             _readSessionCts = new CancellationTokenSource();
 
             _readLoopTaskTask = Task.Factory.StartNew(
-                () => ReadLoop(dataProvider, presentDelegate, _readSessionCts.Token),
+                () => ReadLoop(dataProvider, presentPacket, _readSessionCts.Token),
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
 
             return this;
-        }
-
-        public override void WaitCompletion()
-        {
-            Log.Enter();
-
-            _readLoopTaskTask?.GetAwaiter().GetResult().GetAwaiter().GetResult();
-
-            Log.Exit();
         }
 
         public override void Dispose()
@@ -91,6 +120,7 @@ namespace FFmpegPlayer.DataReaders.Generic
             _readSessionCts?.Cancel();
             _readSessionCts?.Dispose();
             _readSessionCts = null;
+            _readLoopTaskTask = null;
 
             Log.Exit();
         }

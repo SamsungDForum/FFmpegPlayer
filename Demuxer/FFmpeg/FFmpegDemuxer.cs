@@ -50,6 +50,16 @@ namespace Demuxer.FFmpeg
             return thread != null;
         }
 
+        public Task<bool> Pause()
+        {
+            return thread.Factory.StartNew(() => formatContext.Pause());
+        }
+
+        public Task<bool> Play()
+        {
+            return thread.Factory.StartNew(() => formatContext.Play());
+        }
+
         public Task<ClipConfiguration> InitForUrl(string url)
         {
             if (IsInitialized())
@@ -182,6 +192,31 @@ namespace Demuxer.FFmpeg
         {
             var streamId = formatContext.FindBestBandwidthStream(mediaType);
             return streamId >= 0 ? streamId : formatContext.FindBestStream(mediaType);
+        }
+
+        public async ValueTask<Packet> NextPacketNew()
+        {
+            if (!IsInitialized())
+                throw new InvalidOperationException();
+
+            var readTask = thread.Factory.StartNew(() =>
+            {
+                var streamIndexes = new[] { audioIdx, videoIdx };
+                var packet = formatContext.NextPacket(streamIndexes);
+                if (packet == null)
+                    completionSource?.SetResult(true);
+                return packet;
+            });
+
+            if (!readTask.IsCompleted)
+            {
+                return await readTask;
+            }
+            else
+            {
+                Logger.Info("Sync completion");
+                return readTask.Result;
+            }
         }
 
         public Task<Packet> NextPacket()

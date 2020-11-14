@@ -25,18 +25,18 @@ using Demuxer.FFmpeg;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
-    public sealed class FFmpegSingleUrlSource : DataSource
+    public sealed class SingleUrlPullSource : DataSource
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
+
         public override Task<ClipConfiguration> Open()
         {
             Log.Enter();
 
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
-
-            Log.Info($"Opening url {_sourceUrls[0]}");
             var openTask = _demuxer.InitForUrl(_sourceUrls[0]);
+            Log.Info($"Opening url {_sourceUrls[0]}");
 
             Log.Exit();
             return openTask;
@@ -55,6 +55,18 @@ namespace FFmpegPlayer.DataSources.FFmpeg
 
             Log.Exit();
             return seekTask;
+        }
+
+        public override Task<bool> Suspend()
+        {
+            // Suspend not required by implementation.
+            return Task.FromResult(true);
+        }
+
+        public override Task<bool> Resume()
+        {
+            // Resume not required by implementation.
+            return Task.FromResult(true);
         }
 
         public override DataSource Add(params string[] urls)

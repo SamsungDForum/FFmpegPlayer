@@ -86,6 +86,26 @@ namespace Demuxer.FFmpeg
 
         public DrmInitData[] DRMInitData => GetDRMInitData();
 
+        public bool Pause()
+        {
+            Logger.Enter();
+            
+            var result = Interop.FFmpeg.av_read_pause(formatContext) == 0;
+
+            Logger.Exit();
+            return result;
+        }
+
+        public bool Play()
+        {
+            Logger.Enter();
+
+            var result = Interop.FFmpeg.av_read_play(formatContext) == 0;
+
+            Logger.Exit();
+            return result;
+        }
+
         private DrmInitData[] GetDRMInitData()
         {
             var result = new List<DrmInitData>();

@@ -29,6 +29,8 @@ namespace Demuxer.FFmpeg
         TimeSpan Duration { get; }
         DrmInitData[] DRMInitData { get; }
 
+        bool Pause();
+        bool Play();
         void Open();
         void Open(string url);
         void FindStreamInfo();
