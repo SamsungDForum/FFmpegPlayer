@@ -48,18 +48,17 @@ namespace FFmpegPlayer.Toolbox
 
             _dataBufferChannel.Writer.Complete();
             bool disposeRequired = typeof(IDisposable).IsAssignableFrom(typeof(T));
-            Log.Info($"Buffered content {typeof(T)} will {(disposeRequired?string.Empty:"not")} be disposed");
 
             if (disposeRequired)
             {
                 int disposeCount = 0;
                 while (_dataBufferChannel.Reader.TryRead(out var p))
                 {
-                    ((IDisposable) p).Dispose();
+                    ((IDisposable)p).Dispose();
                     disposeCount++;
                 }
 
-                Log.Info($"Disposed {disposeCount} elements");
+                Log.Info($"Disposed {disposeCount} {typeof(T)}");
             }
 
             _dataBufferChannel = null;

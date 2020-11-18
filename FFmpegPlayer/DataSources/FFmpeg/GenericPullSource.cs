@@ -25,26 +25,31 @@ using Demuxer.FFmpeg;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
-    public sealed class SingleUrlPullSource : DataSource
+    public sealed class GenericPullSource : DataSource
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
+        private DataSourceOption _options;
 
         public override Task<ClipConfiguration> Open()
         {
             Log.Enter();
 
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
-            var openTask = _demuxer.InitForUrl(_sourceUrls[0]);
-            Log.Info($"Opening url {_sourceUrls[0]}");
 
+            var openTask = _options != null
+                ? _demuxer.InitForUrl(_sourceUrls[0], _options.Options)
+                : _demuxer.InitForUrl(_sourceUrls[0]);
+
+            Log.Info($"Opening {_sourceUrls[0]}");
+            
             Log.Exit();
             return openTask;
         }
 
-        public override Task<Packet> NextPacket()
+        public override ValueTask<Packet> NextPacket()
         {
-            return _demuxer.NextPacket();
+            return new ValueTask<Packet>(_demuxer.NextPacket());
         }
 
         public override Task<TimeSpan> Seek(TimeSpan position)
@@ -59,14 +64,22 @@ namespace FFmpegPlayer.DataSources.FFmpeg
 
         public override Task<bool> Suspend()
         {
-            // Suspend not required by implementation.
-            return Task.FromResult(true);
+            Log.Enter();
+
+            var pauseTask = _demuxer.Pause();
+
+            Log.Exit();
+            return pauseTask;
         }
 
         public override Task<bool> Resume()
         {
-            // Resume not required by implementation.
-            return Task.FromResult(true);
+            Log.Enter();
+
+            var resumeTask = _demuxer.Play();
+
+            Log.Exit();
+            return resumeTask;
         }
 
         public override DataSource Add(params string[] urls)
@@ -76,6 +89,16 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             _sourceUrls = urls;
             Log.Info($"Added urls {string.Join(", ", urls)}");
 
+            Log.Exit();
+            return this;
+        }
+
+        public override DataSource With(DataSourceOption options)
+        {
+            Log.Enter(typeof(DataSourceOption).ToString());
+            
+            _options = options;
+            
             Log.Exit();
             return this;
         }

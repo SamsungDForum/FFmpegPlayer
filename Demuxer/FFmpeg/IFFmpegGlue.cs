@@ -21,7 +21,7 @@ namespace Demuxer.FFmpeg
 {
     public delegate ArraySegment<byte> ReadPacket(int size);
 
-    public interface IFFmpegGlue
+    public interface IFFmpegGlue : IDisposable
     {
         void Initialize();
         IAVIOContext AllocIOContext(ulong bufferSize, ReadPacket readPacket);

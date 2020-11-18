@@ -20,10 +20,6 @@ using System.Linq;
 using Tizen.Applications;
 using ElmSharp;
 using Common;
-using FFmpegPlayer.DataPresenters.EsPlayer;
-using FFmpegPlayer.DataProviders.SingleSource;
-using FFmpegPlayer.DataReaders.Generic;
-using FFmpegPlayer.DataSources.FFmpeg;
 
 namespace FFmpegPlayer
 {
@@ -81,14 +77,7 @@ namespace FFmpegPlayer
             base.OnAppControlReceived(e);
 
             // Create event loop
-            _eventLoop = new EventLoop(
-                new EsPlayerPresenter()
-                    .With(new GenericDataReader())
-                    .With(new SingleSourceDataProvider()
-                    .Add(new SingleUrlPushSource()
-                        //.Add("http://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8")
-                        .Add("rtsp://106.120.45.49/test.ts")
-                    )));
+            _eventLoop = new EventLoop();
 
             // Add key handler. Requires event loop.
             _handledKeys = CreateKeyHandlers(_window, _eventLoop);

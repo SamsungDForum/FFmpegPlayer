@@ -41,10 +41,11 @@ namespace FFmpegPlayer.DataProviders.SingleSource
             return config;
         }
 
-        public override Task<Packet> NextPacket(CancellationToken token)
+        public override ValueTask<Packet> NextPacket(CancellationToken token)
         {
             // TODO: Move token usage down, past data source, all the way to demux so reading a packet at lowest level can be aborted.
-            return token.IsCancellationRequested ? Task.FromResult(default(Packet)) : _dataSource.NextPacket();
+            token.ThrowIfCancellationRequested();
+            return _dataSource.NextPacket();
         }
 
         public override Task<TimeSpan> Seek(TimeSpan position)

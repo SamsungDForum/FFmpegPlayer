@@ -31,7 +31,7 @@ namespace Demuxer.FFmpeg
 {
     public unsafe class AVFormatContextWrapper : IAVFormatContext
     {
-            
+
         private Interop.AVFormatContext* formatContext;
         private AVIOContextWrapper avioContext;
 
@@ -89,7 +89,7 @@ namespace Demuxer.FFmpeg
         public bool Pause()
         {
             Logger.Enter();
-            
+
             var result = Interop.FFmpeg.av_read_pause(formatContext) == 0;
 
             Logger.Exit();
@@ -129,7 +129,7 @@ namespace Demuxer.FFmpeg
                 Marshal.Copy((IntPtr)systemData.pssh_box, drmData.InitData, 0, (int)systemData.pssh_box_size);
                 result.Add(drmData);
             }
-            
+
 
             return result.ToArray();
         }
@@ -140,12 +140,21 @@ namespace Demuxer.FFmpeg
             Open(null);
         }
 
-        public void Open(string url)
+        public void Open(string url, AvDictionary options = null)
         {
-            fixed
-                (Interop.AVFormatContext** formatContextPointer = &formatContext)
+            fixed (Interop.AVFormatContext** formatContextPointer = &formatContext)
             {
-                var ret = Interop.FFmpeg.avformat_open_input(formatContextPointer, url, null, null);
+                int ret;
+                if (options is AvDictionary avDictionary)
+                {
+                    Interop.AVDictionary* avd = avDictionary.Dictionary;
+                    ret = Interop.FFmpeg.avformat_open_input(formatContextPointer, url, null, &avd);
+                }
+                else
+                {
+                    ret = Interop.FFmpeg.avformat_open_input(formatContextPointer, url, null, null);
+                }
+
                 if (ret != 0)
                     throw new FFmpegException("Cannot open AVFormatContext");
             }
@@ -229,7 +238,10 @@ namespace Demuxer.FFmpeg
                     throw new FFmpegException($"Cannot get next packet. Cause {GetErrorText(ret)}");
                 var streamIndex = pkt.stream_index;
                 if (streamIndexes.All(index => index != streamIndex))
+                {
+                    Interop.FFmpeg.av_free_packet(&pkt);
                     continue;
+                }
 
                 var stream = formatContext->streams[streamIndex];
                 var pts = Rescale(pkt.pts, stream);
