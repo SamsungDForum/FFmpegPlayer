@@ -136,17 +136,17 @@ namespace FFmpegPlayer
             Log.Enter();
 
             DataPresenter presenter = new EsPlayerPresenter()
-                .With(new GenericDataReader())
+                .WithHandlers(OnEos, OnError)
+                .With(new GenericPacketReader()
+                    .WithHandler(OnError))
                 .With(new SingleSourceDataProvider()
-                    .Add(new GenericPushSource()
+                    .Add(new BufferedGenericSource()
+                        .WithHandler(OnError)
                         //.Add("http://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8")
                         .Add("rtsp://106.120.45.49/test.ts")
                         .With(new DataSourceOption()
-                            .Set(RtspOption.BufferSize, 128 * 1024)
+                            .Set(RtspOption.BufferSize, 1024 * 1024)
                             .Set(RtspOption.SocketTimeout, 5 * 1000000))));
-
-            presenter.Error += OnError;
-            presenter.Eos += OnEos;
 
             try
             {
@@ -206,9 +206,6 @@ namespace FFmpegPlayer
             }
             finally
             {
-                presenter.Error -= OnError;
-                presenter.Eos -= OnEos;
-
                 Log.Info("Disposing presenter");
                 presenter.Dispose();
 

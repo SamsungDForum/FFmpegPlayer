@@ -25,21 +25,22 @@ using Demuxer.FFmpeg;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
-    public sealed class GenericPullSource : DataSource
+    public sealed class GenericSource : DataSource
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
         private DataSourceOption _options;
+        private CancellationTokenSource _sessionCts;
 
         public override Task<ClipConfiguration> Open()
         {
             Log.Enter();
 
+            _sessionCts = new CancellationTokenSource();
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
 
-            var openTask = _options != null
-                ? _demuxer.InitForUrl(_sourceUrls[0], _options.Options)
-                : _demuxer.InitForUrl(_sourceUrls[0]);
+            // TODO: Add token cancellation support
+            var openTask = _demuxer.InitForUrl(_sourceUrls[0], _options?.Options);
 
             Log.Info($"Opening {_sourceUrls[0]}");
             
@@ -47,16 +48,16 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return openTask;
         }
 
-        public override ValueTask<Packet> NextPacket()
+        public override ValueTask<Packet> NextPacket(CancellationToken token)
         {
-            return new ValueTask<Packet>(_demuxer.NextPacket());
+            return _demuxer.NextPacket(token);
         }
 
         public override Task<TimeSpan> Seek(TimeSpan position)
         {
             Log.Enter(position.ToString());
 
-            var seekTask = _demuxer.Seek(position, CancellationToken.None);
+            var seekTask = _demuxer.Seek(position, _sessionCts.Token);
 
             Log.Exit();
             return seekTask;
@@ -103,13 +104,24 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return this;
         }
 
+        public override DataSource WithHandler(Action<string> errorHandler)
+        {
+            // Not used by implementation.
+            // Non buffered generic source is a mere pass-through element to underlying source of data (demuxer)
+            return this;
+        }
         public override void Dispose()
         {
             Log.Enter();
 
+            _sessionCts?.Cancel();
+
             _demuxer.Dispose();
             _demuxer = null;
             _sourceUrls = null;
+
+            _sessionCts?.Dispose();
+            _sessionCts = null;
 
             Log.Exit();
         }

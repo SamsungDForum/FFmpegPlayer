@@ -26,7 +26,7 @@ using FFmpegPlayer.Toolbox;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
-    public sealed class GenericPushSource : DataSource
+    public sealed class BufferedGenericSource : DataSource
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
@@ -34,59 +34,81 @@ namespace FFmpegPlayer.DataSources.FFmpeg
         private CancellationTokenSource _sessionCts;
         private Task<Task> _bufferWriteLoopTaskTask;
         private DataSourceOption _options;
-
+        private event Action<string> ErrorHandler;
         private async Task BufferWriteLoop(CancellationToken token)
         {
             Log.Enter();
             
-            Log.Info("Started");
-
-            Packet packet;
-            bool packetAdded;
-            do
+            Packet packet = null;
+            bool packetAdded = false;
+            try
             {
-                packet = await _demuxer.NextPacket();
-                packetAdded = _buffer.Add(packet);
-            } while (packet != null && !token.IsCancellationRequested && packetAdded);
+                Log.Info("Started");
+                do
+                {
+                    packet = await _demuxer.NextPacket(token);
+                    packetAdded = _buffer.Add(packet);
+                } while (packet != null && !token.IsCancellationRequested && packetAdded);
+            }
+            catch (OperationCanceledException)
+            {
+                Log.Info("Cancelled");
+            }
+            catch (Exception e)
+            {
+                var errorMsg = e.ToString();
+                Log.Fatal(errorMsg);
+                ErrorHandler?.Invoke(errorMsg);
+            }
 
             Log.Info($"Terminated. Last packet: {packet==null} Packet added: {packetAdded} Cancelled: {token.IsCancellationRequested}");
             
             Log.Exit();
         }
 
-        private void NewSession()
+        private CancellationToken NewSession()
         {
             Log.Enter();
 
             _sessionCts?.Dispose();
             _sessionCts = new CancellationTokenSource();
 
+            Log.Exit();
+            return _sessionCts.Token;
+        }
+
+        private void StartBufferWriteLoop(CancellationToken token)
+        {
+            Log.Enter();
+
             if (_buffer == null)
                 _buffer = new DataBuffer<Packet>();
 
-            _bufferWriteLoopTaskTask = Task.Factory.StartNew(() => BufferWriteLoop(_sessionCts.Token),
+            _bufferWriteLoopTaskTask = Task.Factory.StartNew(() => BufferWriteLoop(token),
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
 
             Log.Exit();
-        }
 
+        }
         public override async Task<ClipConfiguration> Open()
         {
             Log.Enter();
 
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
+
+            // TODO: Add token cancellation support
             var config = await _demuxer.InitForUrl(_sourceUrls[0], _options?.Options);
             Log.Info($"{_sourceUrls[0]} opened");
-            
-            NewSession();
+
+            StartBufferWriteLoop(NewSession());
 
             Log.Exit();
             return config;
         }
 
-        public override ValueTask<Packet> NextPacket()
+        public override ValueTask<Packet> NextPacket(CancellationToken token)
         {
-            return _buffer.Take(_sessionCts.Token);
+            return _buffer.Take(token);
         }
 
         public override async Task<TimeSpan> Seek(TimeSpan position)
@@ -101,9 +123,10 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             _buffer.Dispose();
             _buffer = null;
 
-            var seekPosition = await _demuxer.Seek(position, CancellationToken.None);
+            var newSession = NewSession();
+            var seekPosition = await _demuxer.Seek(position, newSession);
             Log.Info($"Demuxer seeked to {seekPosition}");
-            NewSession();
+            StartBufferWriteLoop(newSession);
 
             Log.Exit();
             return seekPosition;
@@ -119,7 +142,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             _bufferWriteLoopTaskTask = null;
 
             var demuxerPause = _demuxer.Pause();
-            Log.Info("Suspending demucer");
+            Log.Info("Suspending demuxer");
 
             Log.Exit();
             return demuxerPause;
@@ -129,12 +152,12 @@ namespace FFmpegPlayer.DataSources.FFmpeg
         {
             Log.Enter();
 
+            var session = NewSession();
             var demuxerPlayTask = _demuxer.Play();
+            StartBufferWriteLoop(session);
             Log.Info("Resuming demuxer");
 
-            NewSession();
-
-            Log.Enter();
+            Log.Exit();
             return demuxerPlayTask;
         }
 
@@ -151,10 +174,20 @@ namespace FFmpegPlayer.DataSources.FFmpeg
 
         public override DataSource With(DataSourceOption options)
         {
-            Log.Enter(typeof(DataSourceOption).ToString());
+            Log.Enter(options.GetType().ToString());
 
             _options = options;
             
+            Log.Exit();
+            return this;
+        }
+
+        public override DataSource WithHandler(Action<string> errorHandler)
+        {
+            Log.Enter();
+
+            ErrorHandler += errorHandler;
+
             Log.Exit();
             return this;
         }

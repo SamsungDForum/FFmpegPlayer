@@ -16,6 +16,7 @@
  */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Demuxer;
 using Demuxer.Common;
@@ -25,12 +26,13 @@ namespace FFmpegPlayer.DataSources
     public abstract class DataSource : IDisposable
     {
         public abstract Task<ClipConfiguration> Open();
-        public abstract ValueTask<Packet> NextPacket();
+        public abstract ValueTask<Packet> NextPacket(CancellationToken token);
         public abstract Task<TimeSpan> Seek(TimeSpan position);
         public abstract Task<bool> Suspend();
         public abstract Task<bool> Resume();
         public abstract DataSource Add(params string[] urls);
         public abstract DataSource With(DataSourceOption options);
+        public abstract DataSource WithHandler(Action<string> errorHandler);
         public abstract void Dispose();
     }
 }

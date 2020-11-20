@@ -28,7 +28,7 @@ namespace Demuxer.FFmpeg
         IAVIOContext AVIOContext { get; set; }
         TimeSpan Duration { get; }
         DrmInitData[] DRMInitData { get; }
-
+        Func<int> IoInterrupt { set; }
         bool Pause();
         bool Play();
         void Open();
@@ -38,7 +38,7 @@ namespace Demuxer.FFmpeg
         int FindBestBandwidthStream(AVMediaType mediaType);
         void EnableStreams(int audioIdx, int videoIdx);
         StreamConfig ReadConfig(int index);
-        Packet NextPacket(int[] streamIndexes);
+        Packet NextPacket(params int[] streamIndexes);
         void Seek(int stream, TimeSpan time);
     }
 }

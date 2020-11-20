@@ -38,15 +38,13 @@ namespace FFmpegPlayer.DataPresenters
 
     public abstract class DataPresenter : IDisposable
     {
-        public abstract event Action Eos;
-        public abstract event Action<string> Error;
-
         public abstract Task Open(Window presenterWindow);
         public abstract Task Seek(SeekDirection direction);
         public abstract Task Suspend();
         public abstract Task Resume();
         public abstract DataPresenter With(DataProvider dataProvider);
         public abstract DataPresenter With(DataReader dataReader);
+        public abstract DataPresenter WithHandlers(Action eosHandler, Action<string> errorHandler);
         public abstract void Dispose();
     }
 }

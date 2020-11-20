@@ -25,18 +25,19 @@ using FFmpegPlayer.DataProviders;
 
 namespace FFmpegPlayer.DataReaders.Generic
 {
-    public class GenericDataReader : DataReader
+    public class GenericPacketReader : DataReader
     {
         private static readonly TimeSpan ResubmitDelay = TimeSpan.FromMilliseconds(150);
         private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
 
+        private event Action<string> ErrorHandler;
         public override Task SessionDisposal
         {
             get { return _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask; }
         }
 
-        private static async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
+        private async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
         {
             Log.Enter();
 
@@ -58,7 +59,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                     var scheduleAfter = scheduler.Schedule(packet);
                     if (scheduleAfter != default)
                     {
-                        Log.Verbose($"{packet.StreamType}: {packet.Pts} delaying by {scheduleAfter}");
+                        Log.Verbose($"{packet.Pts} {packet.StreamType} delaying {scheduleAfter}");
                         await Task.Delay(scheduleAfter, token);
                     }
 
@@ -84,6 +85,12 @@ namespace FFmpegPlayer.DataReaders.Generic
             {
                 Log.Info("Cancelled");
             }
+            catch (Exception e)
+            {
+                var errorMsg = e.ToString();
+                Log.Fatal(errorMsg);
+                ErrorHandler?.Invoke(errorMsg);
+            }
             finally
             {
                 // Abandoned packet
@@ -91,7 +98,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                 {
                     // Last chance scenario. Try pushing it. If cancellation was requested, we'll loose one packet less
                     if (presentPacket(packet) != PresentPacketResult.Success)
-                        Log.Warn($"{packet.StreamType}: Abandoned packet {packet.Pts}");
+                        Log.Warn($"{packet.Pts} {packet.StreamType} Abandoned");
 
                     packet.Dispose();
                 }
@@ -114,14 +121,27 @@ namespace FFmpegPlayer.DataReaders.Generic
             return this;
         }
 
+        public override DataReader WithHandler(Action<string> errorHandler)
+        {
+            Log.Enter();
+
+            ErrorHandler += errorHandler;
+
+            Log.Exit();
+            return this;
+        }
+
         public override void Dispose()
         {
             Log.Enter();
 
+            Log.Info($"Terminating ReadLoop: {_readLoopTaskTask != null}");
             _readSessionCts?.Cancel();
+            _readLoopTaskTask?.GetAwaiter().GetResult().GetAwaiter().GetResult();
+            _readLoopTaskTask = null;
+
             _readSessionCts?.Dispose();
             _readSessionCts = null;
-            _readLoopTaskTask = null;
 
             Log.Exit();
         }
