@@ -29,7 +29,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
-        private DataSourceOption _options;
+        private DataSourceOptions _options;
         private CancellationTokenSource _sessionCts;
 
         public override Task<ClipConfiguration> Open()
@@ -94,9 +94,9 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return this;
         }
 
-        public override DataSource With(DataSourceOption options)
+        public override DataSource With(DataSourceOptions options)
         {
-            Log.Enter(typeof(DataSourceOption).ToString());
+            Log.Enter(nameof(DataSourceOptions));
             
             _options = options;
             

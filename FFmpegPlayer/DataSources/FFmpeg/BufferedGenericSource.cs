@@ -33,7 +33,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
         private DataBuffer<Packet> _buffer;
         private CancellationTokenSource _sessionCts;
         private Task<Task> _bufferWriteLoopTaskTask;
-        private DataSourceOption _options;
+        private DataSourceOptions _options;
         private event Action<string> ErrorHandler;
         private async Task BufferWriteLoop(CancellationToken token)
         {
@@ -95,11 +95,9 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             Log.Enter();
 
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
-
             // TODO: Add token cancellation support
             var config = await _demuxer.InitForUrl(_sourceUrls[0], _options?.Options);
             Log.Info($"{_sourceUrls[0]} opened");
-
             StartBufferWriteLoop(NewSession());
 
             Log.Exit();
@@ -132,20 +130,20 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return seekPosition;
         }
 
-        public override Task<bool> Suspend()
+        public override async Task<bool> Suspend()
         {
             Log.Enter();
 
             _sessionCts.Cancel();
 
-            _bufferWriteLoopTaskTask.GetAwaiter().GetResult().GetAwaiter().GetResult();
+            await await _bufferWriteLoopTaskTask;
             _bufferWriteLoopTaskTask = null;
 
-            var demuxerPause = _demuxer.Pause();
-            Log.Info("Suspending demuxer");
+            var demuxerPaused = await _demuxer.Pause();
+            Log.Info("Demuxer suspended");
 
             Log.Exit();
-            return demuxerPause;
+            return demuxerPaused;
         }
 
         public override Task<bool> Resume()
@@ -172,11 +170,12 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return this;
         }
 
-        public override DataSource With(DataSourceOption options)
+        public override DataSource With(DataSourceOptions options)
         {
             Log.Enter(options.GetType().ToString());
 
-            _options = options;
+            
+	   _options = options;
             
             Log.Exit();
             return this;

@@ -87,8 +87,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             else
             {
                 // Playback's running. Stop it.
-                disposeTask = _dataReader.SessionDisposal;
-                _dataReadingSession.Dispose();
+                disposeTask = _dataReader.DisposeAsync(_dataReadingSession);
                 _dataReadingSession = null;
             }
 
@@ -143,6 +142,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
             // Wait for ready to transfer
             await Task.WhenAll(readyToTransferTask, seekDataTask);
+
             var newSession = _dataReader.NewSession(_dataProvider, PresentPacket);
             Log.Info($"Transfer started. Data seek position {seekDataTask.Result}");
 
@@ -180,8 +180,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             else
             {
                 _esPlayer.Pause();
-                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReader.SessionDisposal);
-                _dataReadingSession.Dispose();
+                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReader.DisposeAsync(_dataReadingSession));
                 _dataReadingSession = null;
 
                 Log.Info("Pausing");
@@ -389,8 +388,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter();
 
             Log.Info($"Disposing data reader: {_dataReader != null}");
-            Task readSessionDisposal = _dataReader?.SessionDisposal ?? Task.CompletedTask;
-            _dataReader?.Dispose();
+            Task readSessionDisposal = _dataReader?.DisposeAsync(_dataReadingSession) ?? Task.CompletedTask;
             _dataReader = null;
             _dataReadingSession = null;
             readSessionDisposal.GetAwaiter().GetResult();

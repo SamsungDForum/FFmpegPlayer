@@ -25,17 +25,16 @@ using FFmpegPlayer.DataProviders;
 
 namespace FFmpegPlayer.DataReaders.Generic
 {
-    public class GenericPacketReader : DataReader
+    public sealed class GenericPacketReader : DataReader
     {
         private static readonly TimeSpan ResubmitDelay = TimeSpan.FromMilliseconds(150);
         private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
 
         private event Action<string> ErrorHandler;
-        public override Task SessionDisposal
-        {
-            get { return _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask; }
-        }
+
+
+
 
         private async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
         {
@@ -137,13 +136,23 @@ namespace FFmpegPlayer.DataReaders.Generic
 
             Log.Info($"Terminating ReadLoop: {_readLoopTaskTask != null}");
             _readSessionCts?.Cancel();
-            _readLoopTaskTask?.GetAwaiter().GetResult().GetAwaiter().GetResult();
             _readLoopTaskTask = null;
 
             _readSessionCts?.Dispose();
             _readSessionCts = null;
 
             Log.Exit();
+        }
+
+        public override Task DisposeAsync(IDisposable session)
+        {
+            Log.Enter();
+
+            var disposeTask = _readLoopTaskTask?.GetAwaiter().GetResult()??Task.CompletedTask;
+            Dispose();
+
+            Log.Exit();
+            return disposeTask;
         }
     }
 }
