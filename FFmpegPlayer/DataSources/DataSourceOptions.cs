@@ -16,21 +16,33 @@
  */
 
 using System;
-using System.Threading.Tasks;
-using Demuxer;
-using Demuxer.Common;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 
 namespace FFmpegPlayer.DataSources
 {
-    public abstract class DataSource : IDisposable
+    public class DataSourceOptions
     {
-        public abstract Task<ClipConfiguration> Open();
-        public abstract ValueTask<Packet> NextPacket();
-        public abstract Task<TimeSpan> Seek(TimeSpan position);
-        public abstract Task<bool> Suspend();
-        public abstract Task<bool> Resume();
-        public abstract DataSource Add(params string[] urls);
-        public abstract DataSource With(DataSourceOptions options);
-        public abstract void Dispose();
+        public ReadOnlyCollection<KeyValuePair<string, object>> Options => _options.AsReadOnly();
+
+        private readonly List<KeyValuePair<string, object>> _options = new List<KeyValuePair<string, object>>();
+        public DataSourceOptions Set(string key, string value)
+        {
+            _options.Add(KeyValuePair.Create<string, object>(key, value));
+            return this;
+        }
+
+        public DataSourceOptions Set(string key, long value)
+        {
+            _options.Add(KeyValuePair.Create<string, object>(key, value));
+            return this;
+        }
+
+        public DataSourceOptions Clear(string key)
+        {
+            _options.RemoveAll(pair => pair.Key.Equals(key));
+            return this;
+        }
     }
 }

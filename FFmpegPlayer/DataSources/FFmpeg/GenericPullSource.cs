@@ -29,7 +29,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
-        private DataSourceOption _options;
+        private DataSourceOptions _options;
 
         public override Task<ClipConfiguration> Open()
         {
@@ -42,7 +42,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
                 : _demuxer.InitForUrl(_sourceUrls[0]);
 
             Log.Info($"Opening {_sourceUrls[0]}");
-            
+
             Log.Exit();
             return openTask;
         }
@@ -93,12 +93,12 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return this;
         }
 
-        public override DataSource With(DataSourceOption options)
+        public override DataSource With(DataSourceOptions options)
         {
-            Log.Enter(typeof(DataSourceOption).ToString());
-            
+            Log.Enter(typeof(DataSourceOptions).ToString());
+
             _options = options;
-            
+
             Log.Exit();
             return this;
         }
