@@ -50,6 +50,7 @@ namespace Demuxer.FFmpeg
             return thread != null;
         }
 
+
         public Task<bool> Pause()
         {
             return thread.Factory.StartNew(() => formatContext.Pause());
@@ -60,14 +61,15 @@ namespace Demuxer.FFmpeg
             return thread.Factory.StartNew(() => formatContext.Play());
         }
 
-        public Task<ClipConfiguration> InitForUrl(string url)
+        public Task<ClipConfiguration> InitForUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options = null)
         {
             if (IsInitialized())
                 throw new InvalidOperationException("Initialization already started");
 
             InitThreadingPrimitives();
-            return thread.Factory.StartNew(() => InitDemuxer(() => InitUrl(url)));
+            return thread.Factory.StartNew(() => InitDemuxer(() => InitUrl(url, options)));
         }
+
 
         private void InitThreadingPrimitives()
         {
@@ -76,14 +78,16 @@ namespace Demuxer.FFmpeg
             completionSource = new TaskCompletionSource<bool>();
         }
 
-        private void InitUrl(string url)
+        private void InitUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options = null)
         {
             try
             {
                 formatContext = ffmpegGlue.AllocFormatContext();
                 formatContext.ProbeSize = ProbeSize;
                 formatContext.MaxAnalyzeDuration = TimeSpan.FromSeconds(10);
-                formatContext.Open(url);
+
+                formatContext.Open(url, options == null ? null : new AvDictionary(options));
+
             }
             catch (FFmpegException ex)
             {
@@ -194,31 +198,6 @@ namespace Demuxer.FFmpeg
             return streamId >= 0 ? streamId : formatContext.FindBestStream(mediaType);
         }
 
-        public async ValueTask<Packet> NextPacketNew()
-        {
-            if (!IsInitialized())
-                throw new InvalidOperationException();
-
-            var readTask = thread.Factory.StartNew(() =>
-            {
-                var streamIndexes = new[] { audioIdx, videoIdx };
-                var packet = formatContext.NextPacket(streamIndexes);
-                if (packet == null)
-                    completionSource?.SetResult(true);
-                return packet;
-            });
-
-            if (!readTask.IsCompleted)
-            {
-                return await readTask;
-            }
-            else
-            {
-                Logger.Info("Sync completion");
-                return readTask.Result;
-            }
-        }
-
         public Task<Packet> NextPacket()
         {
             if (!IsInitialized())
@@ -251,7 +230,7 @@ namespace Demuxer.FFmpeg
         public void Reset()
         {
             cancellationTokenSource?.Cancel();
-            thread?.Factory?.Run(() => DeallocFFmpeg());
+            thread?.Factory?.Run(DeallocFFmpeg);
             thread?.Join();
             thread = null;
             buffer = null;
@@ -267,7 +246,10 @@ namespace Demuxer.FFmpeg
                 var index = audioIdx;
                 if (videoIdx != -1)
                     index = videoIdx;
+
+                Logger.Info("SeekStart");
                 formatContext.Seek(index, time);
+                Logger.Info("SeekEnd");
                 return time;
             }, token);
         }
@@ -330,6 +312,7 @@ namespace Demuxer.FFmpeg
         public void Dispose()
         {
             Reset();
+            this.ffmpegGlue.Dispose();
         }
     }
 }

@@ -32,7 +32,7 @@ namespace Demuxer.FFmpeg
         bool Pause();
         bool Play();
         void Open();
-        void Open(string url);
+        void Open(string url, AvDictionary options = null);
         void FindStreamInfo();
         int FindBestStream(AVMediaType mediaType);
         int FindBestBandwidthStream(AVMediaType mediaType);

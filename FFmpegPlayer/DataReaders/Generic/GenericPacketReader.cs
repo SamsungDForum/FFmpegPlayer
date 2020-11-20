@@ -36,20 +36,18 @@ namespace FFmpegPlayer.DataReaders.Generic
             Log.Enter();
 
             var scheduler = new GenericScheduler();
-            Packet packet = default;
+            Packet packet = null;
             try
             {
                 Log.Info("Started");
 
                 while (!token.IsCancellationRequested)
                 {
-                    // TODO: Add EOS support
-                    Log.Verbose("Reading packet");
                     packet = await dataProvider.NextPacket(token);
-                    if (packet == default)
+                    if (packet == null)
                     {
-                        Log.Info("No data");
-                        continue;
+                        presentPacket(null);
+                        return;
                     }
 
                     var scheduleAfter = scheduler.Schedule(packet);
@@ -62,16 +60,19 @@ namespace FFmpegPlayer.DataReaders.Generic
                     PresentPacketResult result = presentPacket(packet);
                     while (result != PresentPacketResult.Success)
                     {
-                        // packet will be disposed in finally block
                         if (result == PresentPacketResult.Fail)
+                        {
+                            packet.Dispose();
+                            packet = null;
                             return;
+                        }
 
                         await Task.Delay(ResubmitDelay, token);
                         result = presentPacket(packet);
                     }
 
                     packet.Dispose();
-                    packet = default;
+                    packet = null;
                 }
             }
             catch (OperationCanceledException)
@@ -80,8 +81,8 @@ namespace FFmpegPlayer.DataReaders.Generic
             }
             finally
             {
-                // Dispose abandoned packets.
-                if (packet != default)
+                // Abandoned packet
+                if (packet != null)
                 {
                     // Last chance scenario. Try pushing it. If cancellation was requested, we'll loose one packet less
                     if (presentPacket(packet) != PresentPacketResult.Success)

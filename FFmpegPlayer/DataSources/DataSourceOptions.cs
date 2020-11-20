@@ -1,6 +1,6 @@
-/*!
+﻿/*!
  * https://github.com/SamsungDForum/JuvoPlayer
- * Copyright 2018, Samsung Electronics Co., Ltd
+ * Copyright 2020, Samsung Electronics Co., Ltd
  * Licensed under the MIT license
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
@@ -17,30 +17,32 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
-using Demuxer.Common;
-using Demuxer.FFmpeg;
+using System.Collections.ObjectModel;
 
-namespace Demuxer
+
+namespace FFmpegPlayer.DataSources
 {
-    public struct ClipConfiguration
+    public class DataSourceOptions
     {
-        public IList<StreamConfig> StreamConfigs { get; set; }
-        public IList<DrmInitData> DrmInitDatas { get; set; }
-        public TimeSpan Duration { get; set; }
-    }
+        public ReadOnlyCollection<KeyValuePair<string, object>> Options => _options.AsReadOnly();
 
-    public interface IDemuxer : IDisposable
-    {
-        bool IsInitialized();
-        Task<ClipConfiguration> InitForUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options=null);
-        Task<ClipConfiguration> InitForEs();
-        Task<Packet> NextPacket();
-        void PushChunk(byte[] chunk);
-        Task Completion { get; }
-        void Complete();
-        void Reset();
-        Task<TimeSpan> Seek(TimeSpan time, CancellationToken token);
+        private readonly List<KeyValuePair<string, object>> _options = new List<KeyValuePair<string, object>>();
+        public DataSourceOptions Set(string key, string value)
+        {
+            _options.Add(KeyValuePair.Create<string, object>(key, value));
+            return this;
+        }
+
+        public DataSourceOptions Set(string key, long value)
+        {
+            _options.Add(KeyValuePair.Create<string, object>(key, value));
+            return this;
+        }
+
+        public DataSourceOptions Clear(string key)
+        {
+            _options.RemoveAll(pair => pair.Key.Equals(key));
+            return this;
+        }
     }
 }

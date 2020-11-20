@@ -26,28 +26,31 @@ using FFmpegPlayer.Toolbox;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
-    public sealed class SingleUrlPushSource : DataSource
+    public sealed class GenericPushSource : DataSource
     {
         private string[] _sourceUrls;
         private FFmpegDemuxer _demuxer;
         private DataBuffer<Packet> _buffer;
         private CancellationTokenSource _sessionCts;
         private Task<Task> _bufferWriteLoopTaskTask;
+        private DataSourceOptions _options;
 
-        private async Task BufferWriteLoop()
+        private async Task BufferWriteLoop(CancellationToken token)
         {
             Log.Enter();
 
-            var token = _sessionCts.Token;
-            bool packetAdded = true;
-            
             Log.Info("Started");
-            
-            while (!token.IsCancellationRequested && packetAdded)
-                packetAdded = _buffer.Add(await _demuxer.NextPacket());
-            
-            Log.Info($"Terminated. Cancelled: {token.IsCancellationRequested}. Packet add failed: {packetAdded}");
-            
+
+            Packet packet;
+            bool packetAdded;
+            do
+            {
+                packet = await _demuxer.NextPacket();
+                packetAdded = _buffer.Add(packet);
+            } while (packet != null && !token.IsCancellationRequested && packetAdded);
+
+            Log.Info($"Terminated. Last packet: {packet == null} Packet added: {packetAdded} Cancelled: {token.IsCancellationRequested}");
+
             Log.Exit();
         }
 
@@ -57,13 +60,13 @@ namespace FFmpegPlayer.DataSources.FFmpeg
 
             _sessionCts?.Dispose();
             _sessionCts = new CancellationTokenSource();
-            _buffer = new DataBuffer<Packet>();
-            _bufferWriteLoopTaskTask = Task.Factory.StartNew(
-                BufferWriteLoop,
-                TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning);
 
-            Log.Info("Session starting");
-            
+            if (_buffer == null)
+                _buffer = new DataBuffer<Packet>();
+
+            _bufferWriteLoopTaskTask = Task.Factory.StartNew(() => BufferWriteLoop(_sessionCts.Token),
+                TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
+
             Log.Exit();
         }
 
@@ -72,28 +75,18 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             Log.Enter();
 
             _demuxer = new FFmpegDemuxer(new FFmpegGlue());
-            var openTask =  _demuxer.InitForUrl(_sourceUrls[0]);
-            Log.Info($"Opening url {_sourceUrls[0]}");
+            var config = await _demuxer.InitForUrl(_sourceUrls[0], _options?.Options);
+            Log.Info($"{_sourceUrls[0]} opened");
 
             NewSession();
-            var result = await openTask;
 
             Log.Exit();
-            return result;
+            return config;
         }
 
-        public override async Task<Packet> NextPacket()
+        public override ValueTask<Packet> NextPacket()
         {
-            try
-            {
-                return await _buffer.Take(_sessionCts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                Log.Info("Cancelled");
-            }
-
-            return null;
+            return _buffer.Take(_sessionCts.Token);
         }
 
         public override async Task<TimeSpan> Seek(TimeSpan position)
@@ -101,11 +94,16 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             Log.Enter(position.ToString());
 
             _sessionCts.Cancel();
-            Log.Info("Terminating BufferWriteLoop");
-
             await await _bufferWriteLoopTaskTask;
+            _bufferWriteLoopTaskTask = null;
+            Log.Info("BufferWriteLoop Terminated");
+
+            _buffer.Dispose();
+            _buffer = null;
+
             var seekPosition = await _demuxer.Seek(position, CancellationToken.None);
             Log.Info($"Demuxer seeked to {seekPosition}");
+            NewSession();
 
             Log.Exit();
             return seekPosition;
@@ -116,28 +114,27 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             Log.Enter();
 
             _sessionCts.Cancel();
-            _sessionCts.Dispose();
-            _sessionCts = null;
 
             await await _bufferWriteLoopTaskTask;
             _bufferWriteLoopTaskTask = null;
-            var demuxerPause = await _demuxer.Pause();
-            Log.Info($"Demuxer suspending");
+
+            var demuxerPaused = await _demuxer.Pause();
+            Log.Info("Demuxer suspended");
 
             Log.Exit();
-            return demuxerPause;
+            return demuxerPaused;
         }
 
         public override Task<bool> Resume()
         {
             Log.Enter();
-            
+
             var demuxerPlayTask = _demuxer.Play();
-            Log.Info("Demuxer resuming");
-            
+            Log.Info("Resuming demuxer");
+
             NewSession();
 
-            Log.Enter();
+            Log.Exit();
             return demuxerPlayTask;
         }
 
@@ -152,20 +149,35 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return this;
         }
 
+        public override DataSource With(DataSourceOptions options)
+        {
+            Log.Enter(typeof(DataSourceOptions).ToString());
+
+            _options = options;
+
+            Log.Exit();
+            return this;
+        }
+
         public override void Dispose()
         {
             Log.Enter();
 
             Log.Info($"Terminating BufferWriteLoop: {_bufferWriteLoopTaskTask != null}");
             _sessionCts?.Cancel();
-            _sessionCts?.Dispose();
-            _sessionCts = null;
             _bufferWriteLoopTaskTask?.GetAwaiter().GetResult().GetAwaiter().GetResult();
 
             Log.Info($"Disposing demuxer: {_demuxer != null}");
             _demuxer?.Dispose();
             _demuxer = null;
             _sourceUrls = null;
+
+            Log.Info($"Disposing buffered packets: {_buffer != null}");
+            _buffer?.Dispose();
+            _buffer = null;
+
+            _sessionCts?.Dispose();
+            _sessionCts = null;
 
             Log.Exit();
         }

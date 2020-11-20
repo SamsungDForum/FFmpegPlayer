@@ -77,6 +77,12 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
         {
             Log.Enter();
 
+            var streamDuration = _dataProvider.CurrentConfiguration.Duration;
+            if (streamDuration == TimeSpan.Zero)
+            {
+                Log.Info("Stream is not seekbable");
+                return;
+            }
             bool resumeAfterSeek = _dataReadingSession != null;
             Log.Info($"Seek {direction}. Playing: {resumeAfterSeek}");
             Task dataSessionDisposal;
@@ -97,7 +103,8 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             if (direction == SeekDirection.Forward)
             {
                 position += SeekDistance;
-                //TODO: Add cliping to max duration / max duration - TimeFrame
+                if (position >= streamDuration)
+                    position = streamDuration;
             }
             else
             {
@@ -214,6 +221,16 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
         private PresentPacketResult PresentPacket(Packet packet)
         {
+            if (packet == null)
+            {
+                var configuredStreams = _dataProvider.CurrentConfiguration.StreamConfigs;
+                foreach (var stream in configuredStreams)
+                    _esPlayer.SubmitEosPacket(stream.StreamType().ESStreamType());
+
+                Log.Info("EOS issued");
+                return PresentPacketResult.Success;
+            }
+
             var status = _esPlayer.Submit(packet);
             Log.Verbose($"{packet.StreamType}: {packet.Pts} Submitted {status}");
             switch (status)

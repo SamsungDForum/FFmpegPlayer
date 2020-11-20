@@ -21,6 +21,12 @@ using System.Threading.Tasks;
 using Common;
 using ElmSharp;
 using FFmpegPlayer.DataPresenters;
+using FFmpegPlayer.DataPresenters.EsPlayer;
+using FFmpegPlayer.DataProviders.SingleSource;
+using FFmpegPlayer.DataReaders.Generic;
+using FFmpegPlayer.DataSources;
+using FFmpegPlayer.DataSources.FFmpeg;
+using FFmpegPlayer.DataSources.FFmpeg.Options;
 
 namespace FFmpegPlayer
 {
@@ -42,16 +48,12 @@ namespace FFmpegPlayer
         private Task<Task> _eventLoopTask;
         private bool? _playPause;
 
-        public EventLoop(DataPresenter presenter)
+        public EventLoop()
         {
             _sessionCts = new CancellationTokenSource();
             _eventChannel = new EventChannel<PlayerEvent>(_sessionCts.Token);
 
-            presenter.Error += async (errMsg) => await _eventChannel.Send(PlayerEvent.Error, errMsg);
-            presenter.Eos += async () => await _eventChannel.Send(PlayerEvent.EndOfStream);
-
-            _eventLoopTask = Task.Factory.StartNew(
-                () => EventLoopTask(presenter),
+            _eventLoopTask = Task.Factory.StartNew(EventLoopTask,
                 TaskCreationOptions.DenyChildAttach | TaskCreationOptions.LongRunning);
         }
 
@@ -119,9 +121,32 @@ namespace FFmpegPlayer
             return _eventChannel.Send(ev, evArgs);
         }
 
-        private async Task EventLoopTask(DataPresenter presenter)
+        private void OnError(string errorMessage)
+        {
+            _ = _eventChannel.Send(PlayerEvent.Error, errorMessage);
+        }
+
+        private void OnEos()
+        {
+            _ = _eventChannel.Send(PlayerEvent.EndOfStream);
+        }
+
+        private async Task EventLoopTask()
         {
             Log.Enter();
+
+            DataPresenter presenter = new EsPlayerPresenter()
+                .With(new GenericDataReader())
+                .With(new SingleSourceDataProvider()
+                    .Add(new GenericPushSource()
+                        //.Add("http://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8")
+                        .Add("rtsp://106.120.45.49/test.ts")
+                        .With(new DataSourceOptions()
+                            .Set(RtspOption.BufferSize, 128 * 1024)
+                            .Set(RtspOption.SocketTimeout, 5 * 1000000))));
+
+            presenter.Error += OnError;
+            presenter.Eos += OnEos;
 
             try
             {
@@ -178,10 +203,12 @@ namespace FFmpegPlayer
             catch (Exception e)
             {
                 Log.Fatal(e);
-                throw;
             }
             finally
             {
+                presenter.Error -= OnError;
+                presenter.Eos -= OnEos;
+
                 Log.Info("Disposing presenter");
                 presenter.Dispose();
 
@@ -194,12 +221,14 @@ namespace FFmpegPlayer
             Log.Enter();
 
             _sessionCts.Cancel();
-            _sessionCts.Dispose();
-            _sessionCts = null;
             _eventLoopTask.GetAwaiter().GetResult().GetAwaiter().GetResult();
             _eventLoopTask = null;
+
             _eventChannel.Dispose();
             _eventChannel = null;
+
+            _sessionCts.Dispose();
+            _sessionCts = null;
 
             Log.Exit();
         }

@@ -25,11 +25,12 @@ namespace FFmpegPlayer.DataSources
     public abstract class DataSource : IDisposable
     {
         public abstract Task<ClipConfiguration> Open();
-        public abstract Task<Packet> NextPacket();
+        public abstract ValueTask<Packet> NextPacket();
         public abstract Task<TimeSpan> Seek(TimeSpan position);
         public abstract Task<bool> Suspend();
         public abstract Task<bool> Resume();
         public abstract DataSource Add(params string[] urls);
+        public abstract DataSource With(DataSourceOptions options);
         public abstract void Dispose();
     }
 }
