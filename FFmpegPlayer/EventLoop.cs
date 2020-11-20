@@ -19,6 +19,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
+using ElmSharp;
 using FFmpegPlayer.DataPresenters;
 
 namespace FFmpegPlayer
@@ -28,8 +29,10 @@ namespace FFmpegPlayer
         Close,
         Open,
         Seek,
-        Pause,
-        Resume
+        Suspend,
+        Resume,
+        EndOfStream,
+        Error
     }
 
     public class EventLoop : IDisposable
@@ -43,6 +46,9 @@ namespace FFmpegPlayer
         {
             _sessionCts = new CancellationTokenSource();
             _eventChannel = new EventChannel<PlayerEvent>(_sessionCts.Token);
+
+            presenter.Error += async (errMsg) => await _eventChannel.Send(PlayerEvent.Error, errMsg);
+            presenter.Eos += async () => await _eventChannel.Send(PlayerEvent.EndOfStream);
 
             _eventLoopTask = Task.Factory.StartNew(
                 () => EventLoopTask(presenter),
@@ -95,7 +101,7 @@ namespace FFmpegPlayer
             }
             else
             {
-                var eventTask = _eventChannel.Send(_playPause.Value ? PlayerEvent.Pause : PlayerEvent.Resume);
+                var eventTask = _eventChannel.Send(_playPause.Value ? PlayerEvent.Suspend : PlayerEvent.Resume);
                 if (!eventTask.IsCompleted)
                     eventTask.AsTask().GetAwaiter().GetResult();
             }
@@ -127,22 +133,29 @@ namespace FFmpegPlayer
                     switch (message)
                     {
                         case PlayerEvent.Close:
+                        case PlayerEvent.EndOfStream:
                             _sessionCts.Cancel();
                             _playPause = null;
                             break;
 
-                        case PlayerEvent.Open:
-                            await presenter.Open();
+                        case PlayerEvent.Error when messageArg is string errorMessage:
+                            Log.Fatal(errorMessage);
+                            _sessionCts.Cancel();
+                            _playPause = null;
+                            break;
+
+                        case PlayerEvent.Open when messageArg is Window presenterWindow:
+                            await presenter.Open(presenterWindow);
                             _playPause = true;
                             break;
 
-                        case PlayerEvent.Pause:
-                            presenter.Pause();
+                        case PlayerEvent.Suspend:
+                            await presenter.Suspend();
                             _playPause = false;
                             break;
 
                         case PlayerEvent.Resume:
-                            presenter.Resume();
+                            await presenter.Resume();
                             _playPause = true;
                             break;
 

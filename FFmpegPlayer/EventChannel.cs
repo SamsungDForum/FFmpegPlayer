@@ -28,7 +28,8 @@ namespace FFmpegPlayer
         private Channel<(TEvent, object)> _eventChannel = Channel.CreateBounded<(TEvent, object)>(
             new BoundedChannelOptions(1)
             {
-                // TODO: Change to async continuation. In place to early catch odd deadlocks.
+                // TODO: Change to async continuation when general implementation is complete.
+                // TODO: Currently in place to early catch odd deadlocks.
                 AllowSynchronousContinuations = true,
                 FullMode = BoundedChannelFullMode.Wait,
                 SingleReader = true,

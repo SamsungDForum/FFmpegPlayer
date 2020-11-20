@@ -27,6 +27,8 @@ namespace FFmpegPlayer.DataSources
         public abstract Task<ClipConfiguration> Open();
         public abstract Task<Packet> NextPacket();
         public abstract Task<TimeSpan> Seek(TimeSpan position);
+        public abstract Task<bool> Suspend();
+        public abstract Task<bool> Resume();
         public abstract DataSource Add(params string[] urls);
         public abstract void Dispose();
     }

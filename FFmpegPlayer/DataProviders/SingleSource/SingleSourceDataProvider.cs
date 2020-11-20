@@ -27,25 +27,18 @@ namespace FFmpegPlayer.DataProviders.SingleSource
 {
     public sealed class SingleSourceDataProvider : DataProvider
     {
+        public override ClipConfiguration CurrentConfiguration { get; protected set; }
         private DataSource _dataSource;
-        private ClipConfiguration _currentConfiguration;
-
-        public override ClipConfiguration GetCurrentConfiguration()
-        {
-            Log.Enter();
-
-            Log.Exit();
-            return _currentConfiguration;
-        }
 
         public override async Task<ClipConfiguration> Open()
         {
             Log.Enter();
 
-            _currentConfiguration = await _dataSource.Open();
+            var config = await _dataSource.Open();
+            CurrentConfiguration = config;
 
             Log.Exit();
-            return _currentConfiguration;
+            return config;
         }
 
         public override Task<Packet> NextPacket(CancellationToken token)
@@ -62,6 +55,27 @@ namespace FFmpegPlayer.DataProviders.SingleSource
 
             Log.Exit();
             return seekTask;
+        }
+
+        public override Task Suspend()
+        {
+            Log.Enter();
+
+            var suspendTask = _dataSource.Suspend();
+
+            Log.Exit();
+            return suspendTask;
+
+        }
+
+        public override Task Resume()
+        {
+            Log.Enter();
+
+            var resumeTask = _dataSource.Resume();
+
+            Log.Exit();
+            return resumeTask;
         }
 
         public override DataProvider Add(params DataSource[] dataSources)
