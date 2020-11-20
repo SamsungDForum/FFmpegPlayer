@@ -27,8 +27,8 @@ namespace FFmpegPlayer.DataReaders
 
     public abstract class DataReader : IDisposable
     {
-        public abstract Task SessionDisposal { get; }
         public abstract IDisposable NewSession(DataProvider dataProvider, PresentPacketDelegate presentDelegate);
         public abstract void Dispose();
+        public abstract Task DisposeAsync(IDisposable session);
     }
 }
