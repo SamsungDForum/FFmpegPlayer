@@ -31,11 +31,6 @@ namespace FFmpegPlayer.DataReaders.Generic
         private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
 
-        public override Task SessionDisposal
-        {
-            get { return _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask; }
-        }
-
         private static async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
         {
             Log.Enter();
@@ -123,6 +118,17 @@ namespace FFmpegPlayer.DataReaders.Generic
             _readLoopTaskTask = null;
 
             Log.Exit();
+        }
+
+        public override Task DisposeAsync(IDisposable session)
+        {
+            Log.Enter();
+
+            var completionTask = _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask;
+            session?.Dispose();
+
+            Log.Exit();
+            return completionTask;
         }
     }
 }

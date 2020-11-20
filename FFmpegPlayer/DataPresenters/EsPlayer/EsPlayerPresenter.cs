@@ -87,8 +87,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             else
             {
                 // Playback's running. Stop it.
-                dataSessionDisposal = _dataReader.SessionDisposal;
-                _dataReadingSession.Dispose();
+                dataSessionDisposal = _dataReader.DisposeAsync(_dataReadingSession);
                 _dataReadingSession = null;
                 _esPlayer.Pause();
             }
@@ -161,8 +160,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             else
             {
                 _esPlayer.Pause();
-                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReader.SessionDisposal);
-                _dataReadingSession.Dispose();
+                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReader.DisposeAsync(_dataReadingSession));
                 _dataReadingSession = null;
 
                 Log.Info("Paused");
@@ -347,7 +345,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter();
 
             Log.Info($"Disposing data reader: {_dataReader != null}");
-            Task readSessionDisposal = _dataReader?.SessionDisposal ?? Task.CompletedTask;
+            Task readSessionDisposal = _dataReader?.DisposeAsync(_dataReadingSession) ?? Task.CompletedTask;
             _dataReader?.Dispose();
             _dataReader = null;
             _dataReadingSession = null;
