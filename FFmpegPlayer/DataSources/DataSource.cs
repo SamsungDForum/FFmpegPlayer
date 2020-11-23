@@ -20,6 +20,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Demuxer;
 using Demuxer.Common;
+using FFmpegPlayer.Common;
 
 namespace FFmpegPlayer.DataSources
 {
@@ -32,7 +33,7 @@ namespace FFmpegPlayer.DataSources
         public abstract Task<bool> Resume();
         public abstract DataSource Add(params string[] urls);
         public abstract DataSource With(DataSourceOptions options);
-        public abstract DataSource WithHandler(Action<string> errorHandler);
+        public abstract DataSource AddHandler(ErrorDelegate errorHandler);
         public abstract void Dispose();
     }
 }

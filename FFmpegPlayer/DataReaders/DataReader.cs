@@ -18,20 +18,35 @@
 using System;
 using System.Threading.Tasks;
 using Demuxer.Common;
-using FFmpegPlayer.DataPresenters;
+using FFmpegPlayer.Common;
 using FFmpegPlayer.DataProviders;
 
 namespace FFmpegPlayer.DataReaders
 {
+    public enum PresentPacketResult
+    {
+        Success,
+        Retry,
+        Fail
+    }
+
     public delegate PresentPacketResult PresentPacketDelegate(Packet packet);
 
     public abstract class DataReader : IDisposable
     {
+        public static FactoryDelegate<DataReader> CreateFactoryFor<TDataReader>() where TDataReader : DataReader, new()
+        {
+            return CreateInstance;
 
-        public abstract IDisposable NewSession(DataProvider dataProvider, PresentPacketDelegate presentPacket);
-        public abstract DataReader WithHandler(Action<string> errorHandler);
+            TDataReader CreateInstance()
+            {
+                return new TDataReader();
+            }
+        }
 
-	public abstract void Dispose();        
-	public abstract Task DisposeAsync(IDisposable session);
+        public abstract DataReader With(DataProvider dataProvider, PresentPacketDelegate presentPacket);
+        public abstract DataReader AddHandler(ErrorDelegate errorHandler);
+        public abstract void Dispose();
+        public abstract Task DisposeAsync();
     }
 }

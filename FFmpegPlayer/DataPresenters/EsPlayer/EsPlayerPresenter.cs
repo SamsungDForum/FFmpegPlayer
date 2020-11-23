@@ -15,15 +15,15 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Common;
 using Demuxer.Common;
 using ElmSharp;
+using FFmpegPlayer.Common;
 using FFmpegPlayer.DataProviders;
 using FFmpegPlayer.DataReaders;
-using FFmpegPlayer.PlatformPlayer;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tizen.TV.Multimedia;
 
 namespace FFmpegPlayer.DataPresenters.EsPlayer
@@ -33,13 +33,11 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
         private static readonly TimeSpan SeekDistance = TimeSpan.FromSeconds(10);
 
         private ESPlayer _esPlayer;
-
         private DataProvider _dataProvider;
-        private DataReader _dataReader;
-        private IDisposable _dataReadingSession;
-
-        private event Action EosHandler;
-        private event Action<string> ErrorHandler;
+        private FactoryDelegate<DataReader> _createDataReader;
+        private DataReader _dataReaderSession;
+        private event EosDelegate EosHandler;
+        private event ErrorDelegate ErrorHandler;
 
         public EsPlayerPresenter()
         {
@@ -50,18 +48,23 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
         {
             Log.Enter();
 
+            var openTask = _dataProvider.Open();
+            Log.Info("Opening data provider");
+
             _esPlayer = CreateESplayer(presenterWindow);
             Log.Info("ESPlayer created");
 
-            var clipConfig = await _dataProvider.Open();
-            Log.Info("Data provider opened");
+            var clipConfig = await openTask;           
 
             // Configure platform player and initiate playback.
             var (readyToTransferTask, prepareAsyncTask) = PrepareESplayer(_esPlayer, clipConfig.StreamConfigs);
             await readyToTransferTask;
 
             // Start data transfer.
-            _dataReadingSession = _dataReader.NewSession(_dataProvider, PresentPacket);
+            _dataReaderSession = _createDataReader()
+                .AddHandler(ErrorHandler)
+                .With(_dataProvider, PresentPacket);
+
             Log.Info("Transfer started");
 
             // Wait for PreapareAsync completion.
@@ -74,27 +77,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
             Log.Exit();
         }
-
-        private Task TerminateRunningSession()
-        {
-            Log.Enter();
-
-            Task disposeTask;
-            if (_dataReadingSession == null)
-            {
-                disposeTask = null;
-            }
-            else
-            {
-                // Playback's running. Stop it.
-                disposeTask = _dataReader.DisposeAsync(_dataReadingSession);
-                _dataReadingSession = null;
-            }
-
-            Log.Exit($"{(disposeTask == null ? "No s" : "S")}ession to dispose");
-            return disposeTask;
-        }
-
+        
         public override async Task Seek(SeekDirection direction)
         {
             Log.Enter();
@@ -106,28 +89,15 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
                 return;
             }
 
-            Task sessionDisposal = TerminateRunningSession();
-            bool resumeAfterSeek = sessionDisposal != null;
-
-            // Compute new position based on direction and ESPlayer playback position.
-            _esPlayer.GetPlayingTime(out var position);
-            if (direction == SeekDirection.Forward)
-            {
-                position += SeekDistance;
-                if (position >= streamDuration)
-                    position = streamDuration;
-            }
-            else
-            {
-                position -= SeekDistance;
-                if (position < TimeSpan.Zero)
-                    position = TimeSpan.Zero;
-            }
-            Log.Info($"Seek {direction} to {position}. Playing: {resumeAfterSeek}");
-
-            // Aassure prior session completion before seeking.
+            var resumeAfterSeek = _dataReaderSession != null;
             if (resumeAfterSeek)
-                await sessionDisposal;
+            {
+                _esPlayer.Pause();
+                await _dataReaderSession.DisposeAsync();
+            }
+
+            var position = SeekNextPosition(direction, streamDuration);
+            Log.Info($"Seek {direction} to {position}. Playing: {resumeAfterSeek}");
 
             // Start DataProvider seek.
             var seekDataTask = _dataProvider.Seek(position);
@@ -143,8 +113,10 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             // Wait for ready to transfer
             await Task.WhenAll(readyToTransferTask, seekDataTask);
 
-            var newSession = _dataReader.NewSession(_dataProvider, PresentPacket);
-            Log.Info($"Transfer started. Data seek position {seekDataTask.Result}");
+            var newSession = _createDataReader()
+                .AddHandler(ErrorHandler)
+                .With(_dataProvider, PresentPacket);
+            Log.Info($"Data start position {seekDataTask.Result}");
 
             // Wait for seek async completion.
             await seekAsyncTask;
@@ -161,7 +133,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             {
                 // Resume playback.
                 _esPlayer.Resume();
-                _dataReadingSession = newSession;
+                _dataReaderSession = newSession;
                 Log.Info("Playback resumed");
             }
 
@@ -173,15 +145,15 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter();
 
             Task pauseTask;
-            if (_dataReadingSession == null)
+            if (_dataReaderSession == null)
             {
                 pauseTask = Task.CompletedTask;
             }
             else
             {
                 _esPlayer.Pause();
-                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReader.DisposeAsync(_dataReadingSession));
-                _dataReadingSession = null;
+                pauseTask = Task.WhenAll(_dataProvider.Suspend(), _dataReaderSession.DisposeAsync());
+                _dataReaderSession = null;
 
                 Log.Info("Pausing");
             }
@@ -195,7 +167,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter();
 
             Task resumeTask;
-            if (_dataReadingSession != null)
+            if (_dataReaderSession != null)
             {
                 resumeTask = Task.CompletedTask;
             }
@@ -203,7 +175,9 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             {
                 resumeTask = _dataProvider.Resume();
                 _esPlayer.Resume();
-                _dataReadingSession = _dataReader.NewSession(_dataProvider, PresentPacket);
+                _dataReaderSession = _createDataReader()
+                    .AddHandler(ErrorHandler)
+                    .With(_dataProvider, PresentPacket);
 
                 Log.Info("Resuming");
             }
@@ -214,7 +188,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
         public override DataPresenter With(DataProvider dataProvider)
         {
-            Log.Enter("DataProvider");
+            Log.Enter(dataProvider.GetType().ToString());
 
             _dataProvider = dataProvider;
 
@@ -222,27 +196,51 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             return this;
         }
 
-        public override DataPresenter With(DataReader dataReader)
+        public override DataPresenter With(FactoryDelegate<DataReader> createDataReader)
         {
-            Log.Enter("DataReader");
+            Log.Enter(nameof(FactoryDelegate<DataReader>));
 
-            _dataReader = dataReader;
+            _createDataReader = createDataReader;
 
             Log.Exit();
             return this;
         }
-
-        public override DataPresenter WithHandlers(Action eosAction, Action<string> errorAction)
+        
+        public override DataPresenter AddHandlers(EosDelegate eosHandler, ErrorDelegate errorHandler)
         {
             Log.Enter();
 
-            EosHandler += eosAction;
-            ErrorHandler += errorAction;
+            EosHandler += eosHandler;
+            ErrorHandler += errorHandler;
 
             Log.Exit();
             return this;
         }
 
+        private TimeSpan SeekNextPosition(SeekDirection direction, TimeSpan streamDuration)
+        {
+            // Compute new position based on direction and ESPlayer playback position.
+            _esPlayer.GetPlayingTime(out var position);
+
+            Log.Enter(position.ToString());
+
+            if (direction == SeekDirection.Forward)
+            {
+                position += SeekDistance;
+                if (position >= streamDuration)
+                    position = streamDuration;
+            }
+            else
+            {
+                position -= SeekDistance;
+                if (position < TimeSpan.Zero)
+                    position = TimeSpan.Zero;
+            }
+
+            Log.Exit(position.ToString());
+
+            return position;
+        }
         private PresentPacketResult PresentPacket(Packet packet)
         {
             // Handle End of stream
@@ -271,9 +269,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
                 case SubmitStatus.NotPrepared:
                 case SubmitStatus.OutOfMemory:
-                    var failMsg = $"{packet.StreamType}:{packet.Pts} {status}";
-                    Log.Fatal(failMsg);
-                    ErrorHandler?.Invoke(failMsg);
+                    Log.Fatal($"{packet.StreamType}:{packet.Pts} {status}");
                     return PresentPacketResult.Fail;
 
                 default:
@@ -305,7 +301,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Info("End of stream");
             EosHandler?.Invoke();
 
-            Log.Exit();
+            Log.Exit($"Handler invoked: {EosHandler!=null}");
         }
 
         private void OnError(object sender, ErrorEventArgs errorArgs)
@@ -316,7 +312,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Fatal($"Playbak error {errorMsg}");
             ErrorHandler?.Invoke(errorMsg);
 
-            Log.Exit();
+            Log.Exit($"Handler invoked: {ErrorHandler != null}");
         }
 
         private static void OnBufferStatusChanged(object sender, BufferStatusEventArgs bufferArgs)
@@ -387,11 +383,10 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
         {
             Log.Enter();
 
-            Log.Info($"Disposing data reader: {_dataReader != null}");
-            Task readSessionDisposal = _dataReader?.DisposeAsync(_dataReadingSession) ?? Task.CompletedTask;
-            _dataReader = null;
-            _dataReadingSession = null;
-            readSessionDisposal.GetAwaiter().GetResult();
+            Log.Info($"Terminating DataReader session: {_dataReaderSession != null}");
+            _dataReaderSession?.DisposeAsync().GetAwaiter().GetResult();
+            _dataReaderSession = null;
+            _createDataReader = null;
 
             Log.Info($"Disposing data provider: {_dataProvider != null}");
             _dataProvider?.Dispose();
@@ -400,6 +395,9 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Info($"Disposing ESPlayer: {_esPlayer != null}");
             _esPlayer?.Dispose();
             _esPlayer = null;
+
+            ErrorHandler = null;
+            EosHandler = null;
 
             Log.Exit();
         }

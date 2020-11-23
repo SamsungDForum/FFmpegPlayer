@@ -23,6 +23,7 @@ using ElmSharp;
 using FFmpegPlayer.DataPresenters;
 using FFmpegPlayer.DataPresenters.EsPlayer;
 using FFmpegPlayer.DataProviders.SingleSource;
+using FFmpegPlayer.DataReaders;
 using FFmpegPlayer.DataReaders.Generic;
 using FFmpegPlayer.DataSources;
 using FFmpegPlayer.DataSources.FFmpeg;
@@ -136,12 +137,11 @@ namespace FFmpegPlayer
             Log.Enter();
 
             DataPresenter presenter = new EsPlayerPresenter()
-                .WithHandlers(OnEos, OnError)
-                .With(new GenericPacketReader()
-                    .WithHandler(OnError))
+                .AddHandlers(OnEos, OnError)
+                .With(DataReader.CreateFactoryFor<GenericPacketReader>())
                 .With(new SingleSourceDataProvider()
                     .Add(new BufferedGenericSource()
-                        .WithHandler(OnError)
+                        .AddHandler(OnError)
                         //.Add("http://multiplatform-f.akamaihd.net/i/multi/april11/sintel/sintel-hd_,512x288_450_b,640x360_700_b,768x432_1000_b,1024x576_1400_m,.mp4.csmil/master.m3u8")
                         .Add("rtsp://106.120.45.49/test.ts")
                         .With(new DataSourceOptions()
@@ -217,10 +217,12 @@ namespace FFmpegPlayer
         {
             Log.Enter();
 
+            Log.Info("Terminating EventLoopTask");
             _sessionCts.Cancel();
             _eventLoopTask.GetAwaiter().GetResult().GetAwaiter().GetResult();
             _eventLoopTask = null;
 
+            Log.Info("Disposing event channel");
             _eventChannel.Dispose();
             _eventChannel = null;
 

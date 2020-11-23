@@ -28,6 +28,7 @@ namespace FFmpegPlayer.DataProviders.SingleSource
     public sealed class SingleSourceDataProvider : DataProvider
     {
         public override ClipConfiguration CurrentConfiguration { get; protected set; }
+
         private DataSource _dataSource;
 
         public override async Task<ClipConfiguration> Open()

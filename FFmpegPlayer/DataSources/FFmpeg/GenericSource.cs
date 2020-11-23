@@ -22,6 +22,7 @@ using Common;
 using Demuxer;
 using Demuxer.Common;
 using Demuxer.FFmpeg;
+using FFmpegPlayer.Common;
 
 namespace FFmpegPlayer.DataSources.FFmpeg
 {
@@ -43,7 +44,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             var openTask = _demuxer.InitForUrl(_sourceUrls[0], _options?.Options);
 
             Log.Info($"Opening {_sourceUrls[0]}");
-            
+
             Log.Exit();
             return openTask;
         }
@@ -67,10 +68,10 @@ namespace FFmpegPlayer.DataSources.FFmpeg
         {
             Log.Enter();
 
-            var pauseTask = _demuxer.Pause();
+            var suspendTask = _demuxer.Pause();
 
             Log.Exit();
-            return pauseTask;
+            return suspendTask;
         }
 
         public override Task<bool> Resume()
@@ -97,26 +98,28 @@ namespace FFmpegPlayer.DataSources.FFmpeg
         public override DataSource With(DataSourceOptions options)
         {
             Log.Enter(nameof(DataSourceOptions));
-            
+
             _options = options;
-            
+
             Log.Exit();
             return this;
         }
 
-        public override DataSource WithHandler(Action<string> errorHandler)
+        public override DataSource AddHandler(ErrorDelegate errorHandler)
         {
             // Not used by implementation.
             // Non buffered generic source is a mere pass-through element to underlying source of data (demuxer)
             return this;
         }
+
         public override void Dispose()
         {
             Log.Enter();
 
             _sessionCts?.Cancel();
 
-            _demuxer.Dispose();
+            Log.Info($"Disposing demuxer: {_demuxer != null}");
+            _demuxer?.Dispose();
             _demuxer = null;
             _sourceUrls = null;
 

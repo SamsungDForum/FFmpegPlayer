@@ -18,6 +18,7 @@
 using System;
 using System.Threading.Tasks;
 using ElmSharp;
+using FFmpegPlayer.Common;
 using FFmpegPlayer.DataProviders;
 using FFmpegPlayer.DataReaders;
 
@@ -29,13 +30,6 @@ namespace FFmpegPlayer.DataPresenters
         Backward
     }
 
-    public enum PresentPacketResult
-    {
-        Success,
-        Retry,
-        Fail
-    }
-
     public abstract class DataPresenter : IDisposable
     {
         public abstract Task Open(Window presenterWindow);
@@ -43,8 +37,8 @@ namespace FFmpegPlayer.DataPresenters
         public abstract Task Suspend();
         public abstract Task Resume();
         public abstract DataPresenter With(DataProvider dataProvider);
-        public abstract DataPresenter With(DataReader dataReader);
-        public abstract DataPresenter WithHandlers(Action eosHandler, Action<string> errorHandler);
+        public abstract DataPresenter With(FactoryDelegate<DataReader> createDataReader);
+        public abstract DataPresenter AddHandlers(EosDelegate eosHandler, ErrorDelegate errorHandler);
         public abstract void Dispose();
     }
 }

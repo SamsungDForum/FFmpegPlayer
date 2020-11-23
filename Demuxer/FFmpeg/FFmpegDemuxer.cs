@@ -85,7 +85,7 @@ namespace Demuxer.FFmpeg
             try
             {
                 formatContext = ffmpegGlue.AllocFormatContext();
-                formatContext.IoInterrupt = () => _operationMonitor.CancellOrTimeout();
+                formatContext.IoInterrupt = () => _operationMonitor.CancelOrTimeout();
                 formatContext.ProbeSize = ProbeSize;
                 formatContext.MaxAnalyzeDuration = TimeSpan.FromSeconds(10);
 

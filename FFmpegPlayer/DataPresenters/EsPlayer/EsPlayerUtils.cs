@@ -27,7 +27,7 @@ using StreamType = Tizen.TV.Multimedia.StreamType;
 using PacketAndStorageType = System.ValueTuple<System.Type, System.Type>;
 using PushFunc = System.Func<Tizen.TV.Multimedia.ESPlayer, Demuxer.Common.Packet, Tizen.TV.Multimedia.SubmitStatus>;
 
-namespace FFmpegPlayer.PlatformPlayer
+namespace FFmpegPlayer.DataPresenters.EsPlayer
 {
     /// <summary>
     /// TimeSpan extension methods. Provide time conversion

@@ -54,7 +54,10 @@ namespace Demuxer.FFmpeg
                 throw new FFmpegException("Cannot allocate AVFormatContext");
         }
 
-        public Func<int> IoInterrupt { get; set; }
+        public Func<int> IoInterrupt
+        {
+            set { _ioInterrupt = value; }
+        }
 
         public long ProbeSize
         {
@@ -147,7 +150,6 @@ namespace Demuxer.FFmpeg
 
         public void Open(string url, AvDictionary options = null)
         {
-            _ioInterrupt = IoInterrupt;
 
             if (_ioInterrupt != null)
             {

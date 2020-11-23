@@ -1,4 +1,21 @@
-﻿using System;
+﻿/*!
+ * https://github.com/SamsungDForum/JuvoPlayer
+ * Copyright 2020, Samsung Electronics Co., Ltd
+ * Licensed under the MIT license
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+using System;
 using System.Threading;
 
 namespace Demuxer.FFmpeg
@@ -17,10 +34,10 @@ namespace Demuxer.FFmpeg
             _isRunning = true;
         }
 
-        public void Start(CancellationToken token, bool noTimeout=false)
+        public void Start(CancellationToken token, bool noTimeout = false)
         {
             _token = token;
-            _startTicks = noTimeout?int.MaxValue:Environment.TickCount;
+            _startTicks = noTimeout ? int.MaxValue : Environment.TickCount;
             _isRunning = true;
         }
 
@@ -37,10 +54,10 @@ namespace Demuxer.FFmpeg
                 throw new TimeoutException("Demuxer operation timeout");
         }
 
-        public int CancellOrTimeout()
+        public int CancelOrTimeout()
         {
             // Does not matter what value is returned. > 0 result in EXIT code being retured.
-            return _isRunning && (_token.IsCancellationRequested || Environment.TickCount - _startTicks > TickTimeOut ) ? 1 : 0;
+            return _isRunning && (_token.IsCancellationRequested || Environment.TickCount - _startTicks > TickTimeOut) ? 1 : 0;
         }
 
         public static bool IsAborted(int result)
