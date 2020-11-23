@@ -201,21 +201,20 @@ namespace Demuxer.FFmpeg
             return streamId >= 0 ? streamId : formatContext.FindBestStream(mediaType);
         }
 
-        public ValueTask<Packet> NextPacket(CancellationToken token)
+        public Task<Packet> NextPacket(CancellationToken token)
         {
             if (!IsInitialized())
                 throw new InvalidOperationException();
 
-            return new ValueTask<Packet>(
-                thread.Factory.StartNew(() =>
-                {
-                    _operationMonitor.Start(token);
-                    var packet = formatContext.NextPacket(audioIdx, videoIdx);
-                    _operationMonitor.End();
-                    if (packet == null)
-                        completionSource?.SetResult(true);
-                    return packet;
-                }, token));
+            return thread.Factory.StartNew(() =>
+            {
+                _operationMonitor.Start(token);
+                var packet = formatContext.NextPacket(audioIdx, videoIdx);
+                _operationMonitor.End();
+                if (packet == null)
+                    completionSource?.SetResult(true);
+                return packet;
+            }, token);
         }
 
         public Task<Packet> NextPacket()

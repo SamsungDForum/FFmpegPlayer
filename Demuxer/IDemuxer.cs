@@ -35,7 +35,7 @@ namespace Demuxer
         bool IsInitialized();
         Task<ClipConfiguration> InitForUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options = null);
         Task<ClipConfiguration> InitForEs();
-        ValueTask<Packet> NextPacket(CancellationToken token);
+        Task<Packet> NextPacket(CancellationToken token);
         Task<Packet> NextPacket();
         void PushChunk(byte[] chunk);
         Task Completion { get; }

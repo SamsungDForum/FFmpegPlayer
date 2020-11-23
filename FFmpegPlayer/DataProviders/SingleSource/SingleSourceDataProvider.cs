@@ -42,7 +42,7 @@ namespace FFmpegPlayer.DataProviders.SingleSource
             return config;
         }
 
-        public override ValueTask<Packet> NextPacket(CancellationToken token)
+        public override Task<Packet> NextPacket(CancellationToken token)
         {
             return _dataSource.NextPacket(token);
         }

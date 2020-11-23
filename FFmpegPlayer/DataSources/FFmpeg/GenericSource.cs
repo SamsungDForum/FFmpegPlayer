@@ -49,7 +49,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return openTask;
         }
 
-        public override ValueTask<Packet> NextPacket(CancellationToken token)
+        public override Task<Packet> NextPacket(CancellationToken token)
         {
             return _demuxer.NextPacket(token);
         }

@@ -27,7 +27,7 @@ namespace FFmpegPlayer.DataSources
     public abstract class DataSource : IDisposable
     {
         public abstract Task<ClipConfiguration> Open();
-        public abstract ValueTask<Packet> NextPacket(CancellationToken token);
+        public abstract Task<Packet> NextPacket(CancellationToken token);
         public abstract Task<TimeSpan> Seek(TimeSpan position);
         public abstract Task<bool> Suspend();
         public abstract Task<bool> Resume();

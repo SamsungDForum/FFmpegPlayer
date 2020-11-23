@@ -28,7 +28,7 @@ namespace FFmpegPlayer.DataProviders
     {
         public abstract ClipConfiguration CurrentConfiguration { get; protected set; }
         public abstract Task<ClipConfiguration> Open();
-        public abstract ValueTask<Packet> NextPacket(CancellationToken token);
+        public abstract Task<Packet> NextPacket(CancellationToken token);
         public abstract Task<TimeSpan> Seek(TimeSpan position);
         public abstract Task Suspend();
         public abstract Task Resume();

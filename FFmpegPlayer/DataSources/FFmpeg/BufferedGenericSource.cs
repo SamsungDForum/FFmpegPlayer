@@ -108,9 +108,9 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             return config;
         }
 
-        public override ValueTask<Packet> NextPacket(CancellationToken token)
+        public override async Task<Packet> NextPacket(CancellationToken token)
         {
-            return _buffer.Take(token);
+            return await _buffer.Take(token);
         }
 
         public override async Task<TimeSpan> Seek(TimeSpan position)
