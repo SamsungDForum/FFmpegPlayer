@@ -53,7 +53,6 @@ namespace FFmpegPlayer.DataReaders.Generic
         {
             Log.Enter();
 
-            _stopwatch?.Stop();
             _stopwatch = null;
 
             Log.Exit();

@@ -55,7 +55,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg
             }
             catch (OperationCanceledException)
             {
-                Log.Info("Cancelled");
+                // ignore
             }
             catch (Exception e)
             {
@@ -91,7 +91,6 @@ namespace FFmpegPlayer.DataSources.FFmpeg
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
 
             Log.Exit();
-
         }
 
         public override async Task<ClipConfiguration> Open()

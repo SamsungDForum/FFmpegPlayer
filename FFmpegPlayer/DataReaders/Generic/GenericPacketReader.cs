@@ -48,6 +48,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                     packet = await dataProvider.NextPacket(token);
                     if (packet == null)
                     {
+                        // null packet indicates end of all streams.
                         presentPacket(null);
                         return;
                     }
@@ -65,6 +66,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                         if (result == PresentPacketResult.Fail)
                             throw new Exception($"PresentPacket failed {packet.Pts} {packet.StreamType}");
 
+                        // PresentPacketResult.Retry
                         Log.Warn($"{packet.Pts} {packet.StreamType} Resubmit {ResubmitDelay}");
                         await Task.Delay(ResubmitDelay, token);
                         result = presentPacket(packet);

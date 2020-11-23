@@ -65,8 +65,6 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
                 .AddHandler(ErrorHandler)
                 .With(_dataProvider, PresentPacket);
 
-            Log.Info("Transfer started");
-
             // Wait for PreapareAsync completion.
             await prepareAsyncTask;
             Log.Info("PrepareAsync() completed");
@@ -242,9 +240,10 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Exit(position.ToString());
             return position;
         }
+
         private PresentPacketResult PresentPacket(Packet packet)
         {
-            // Handle End of stream
+            // Handle End of all streams
             if (packet == null)
             {
                 var configuredStreams = _dataProvider.CurrentConfiguration.StreamConfigs;
@@ -293,7 +292,6 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Exit();
             return player;
         }
-
 
         private void OnEos(object sender, EOSEventArgs eosArgs)
         {
