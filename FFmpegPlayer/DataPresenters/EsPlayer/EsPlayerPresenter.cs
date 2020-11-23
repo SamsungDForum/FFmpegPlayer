@@ -54,7 +54,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             _esPlayer = CreateESplayer(presenterWindow);
             Log.Info("ESPlayer created");
 
-            var clipConfig = await openTask;           
+            var clipConfig = await openTask;
 
             // Configure platform player and initiate playback.
             var (readyToTransferTask, prepareAsyncTask) = PrepareESplayer(_esPlayer, clipConfig.StreamConfigs);
@@ -77,18 +77,20 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
             Log.Exit();
         }
-        
+
         public override async Task Seek(SeekDirection direction)
         {
             Log.Enter();
-            var streamDuration = _dataProvider.CurrentConfiguration.Duration;
 
+            // Check if stream is seekable. Duration > 0 = seekable.
+            var streamDuration = _dataProvider.CurrentConfiguration.Duration;
             if (streamDuration == TimeSpan.Zero)
             {
                 Log.Info("Stream is not seekable");
                 return;
             }
 
+            // Terminate reading session if running.
             var resumeAfterSeek = _dataReaderSession != null;
             if (resumeAfterSeek)
             {
@@ -96,6 +98,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
                 await _dataReaderSession.DisposeAsync();
             }
 
+            // Compute next position
             var position = SeekNextPosition(direction, streamDuration);
             Log.Info($"Seek {direction} to {position}. Playing: {resumeAfterSeek}");
 
@@ -112,7 +115,6 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
 
             // Wait for ready to transfer
             await Task.WhenAll(readyToTransferTask, seekDataTask);
-
             var newSession = _createDataReader()
                 .AddHandler(ErrorHandler)
                 .With(_dataProvider, PresentPacket);
@@ -205,7 +207,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Exit();
             return this;
         }
-        
+
         public override DataPresenter AddHandlers(EosDelegate eosHandler, ErrorDelegate errorHandler)
         {
             Log.Enter();
@@ -238,7 +240,6 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             }
 
             Log.Exit(position.ToString());
-
             return position;
         }
         private PresentPacketResult PresentPacket(Packet packet)
@@ -301,7 +302,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Info("End of stream");
             EosHandler?.Invoke();
 
-            Log.Exit($"Handler invoked: {EosHandler!=null}");
+            Log.Exit($"Handler invoked: {EosHandler != null}");
         }
 
         private void OnError(object sender, ErrorEventArgs errorArgs)
@@ -384,7 +385,7 @@ namespace FFmpegPlayer.DataPresenters.EsPlayer
             Log.Enter();
 
             Log.Info($"Terminating DataReader session: {_dataReaderSession != null}");
-            _dataReaderSession?.DisposeAsync().GetAwaiter().GetResult();
+            _dataReaderSession?.Dispose();
             _dataReaderSession = null;
             _createDataReader = null;
 
