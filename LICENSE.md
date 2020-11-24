@@ -1,4 +1,4 @@
-https://github.com/SamsungDForum/JuvoPlayer
+https://github.com/SamsungDForum/FFmpegPlayer
 Copyright 2020, Samsung Electronics Co., Ltd
 Licensed under the MIT license
 
