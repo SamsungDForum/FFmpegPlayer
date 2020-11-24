@@ -16,21 +16,28 @@
  */
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Demuxer;
 using Demuxer.Common;
+using FFmpegPlayer.Common;
 
 namespace FFmpegPlayer.DataSources
 {
     public abstract class DataSource : IDisposable
     {
         public abstract Task<ClipConfiguration> Open();
-        public abstract ValueTask<Packet> NextPacket();
+        public abstract Task<Packet> NextPacket(CancellationToken token);
         public abstract Task<TimeSpan> Seek(TimeSpan position);
+
+        // TODO: Remove bool result. Add error handling inside DataSource
         public abstract Task<bool> Suspend();
+        // TODO: Remove bool result. Add error handling inside DataSource
         public abstract Task<bool> Resume();
+
         public abstract DataSource Add(params string[] urls);
         public abstract DataSource With(DataSourceOptions options);
+        public abstract DataSource AddHandler(ErrorDelegate errorHandler);
         public abstract void Dispose();
     }
 }

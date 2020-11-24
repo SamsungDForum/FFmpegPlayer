@@ -22,7 +22,7 @@ using System.Reflection.Emit;
 using System.Runtime.InteropServices;
 using Tizen.TV.Multimedia;
 
-namespace FFmpegPlayer.PlatformPlayer
+namespace FFmpegPlayer.DataPresenters.EsPlayer
 {
     internal struct NativePacket
     {

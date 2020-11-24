@@ -26,6 +26,7 @@ using Interop = FFmpegBindings.Interop;
 using FFmpegMacros = FFmpegBindings.Interop.FFmpegMacros;
 
 using Logger = Common.Log;
+using FFmpegBindings.Interop;
 
 namespace Demuxer.FFmpeg
 {
@@ -34,8 +35,11 @@ namespace Demuxer.FFmpeg
 
         private Interop.AVFormatContext* formatContext;
         private AVIOContextWrapper avioContext;
-
         private const int MillisecondsPerSecond = 1000;
+
+        private Func<int> _ioInterrupt;
+        private AVIOInterruptCB _interruptCb;
+        private AVIOInterruptCB_callback _interruptCbCallback;
 
         private readonly Interop.AVRational millsBase = new Interop.AVRational
         {
@@ -48,6 +52,11 @@ namespace Demuxer.FFmpeg
             formatContext = Interop.FFmpeg.avformat_alloc_context();
             if (formatContext == null)
                 throw new FFmpegException("Cannot allocate AVFormatContext");
+        }
+
+        public Func<int> IoInterrupt
+        {
+            set { _ioInterrupt = value; }
         }
 
         public long ProbeSize
@@ -130,7 +139,6 @@ namespace Demuxer.FFmpeg
                 result.Add(drmData);
             }
 
-
             return result.ToArray();
         }
 
@@ -142,12 +150,26 @@ namespace Demuxer.FFmpeg
 
         public void Open(string url, AvDictionary options = null)
         {
-            fixed (Interop.AVFormatContext** formatContextPointer = &formatContext)
+
+            if (_ioInterrupt != null)
+            {
+                _interruptCbCallback = _ => _ioInterrupt();
+                _interruptCb = new AVIOInterruptCB
+                {
+                    callback = new AVIOInterruptCB_callback_func
+                    {
+                        Pointer = Marshal.GetFunctionPointerForDelegate(_interruptCbCallback)
+                    }
+                };
+                formatContext->interrupt_callback = _interruptCb;
+            }
+
+            fixed (AVFormatContext** formatContextPointer = &formatContext)
             {
                 int ret;
                 if (options is AvDictionary avDictionary)
                 {
-                    Interop.AVDictionary* avd = avDictionary.Dictionary;
+                    AVDictionary* avd = avDictionary.Dictionary;
                     ret = Interop.FFmpeg.avformat_open_input(formatContextPointer, url, null, &avd);
                 }
                 else
@@ -223,7 +245,7 @@ namespace Demuxer.FFmpeg
             }
         }
 
-        public Packet NextPacket(int[] streamIndexes)
+        public Packet NextPacket(params int[] streamIndexes)
         {
             do
             {
@@ -232,10 +254,11 @@ namespace Demuxer.FFmpeg
                 pkt.data = null;
                 pkt.size = 0;
                 var ret = Interop.FFmpeg.av_read_frame(formatContext, &pkt);
-                if (ret == -541478725)
+                if (OperationMonitor.IsAborted(ret))
                     return null;
-                if (ret < 0)
+                if (ret != 0)
                     throw new FFmpegException($"Cannot get next packet. Cause {GetErrorText(ret)}");
+
                 var streamIndex = pkt.stream_index;
                 if (streamIndexes.All(index => index != streamIndex))
                 {
@@ -289,7 +312,8 @@ namespace Demuxer.FFmpeg
         {
             var (target, flags) = CalculateTargetAndFlags(idx, time);
             var ret = Interop.FFmpeg.av_seek_frame(formatContext, idx, target, flags);
-
+            if (OperationMonitor.IsAborted(ret))
+                return;
             if (ret != 0)
                 throw new FFmpegException($"av_seek_frame returned {ret}");
         }

@@ -36,34 +36,34 @@ namespace Demuxer.FFmpeg
             if (options == null)
                 return;
 
-            foreach (var optionPair in options)
+            foreach (var (key, value) in options)
             {
-                switch (optionPair.Value)
+                switch (value)
                 {
                     case string stringValue:
-                        Set(optionPair.Key, stringValue);
+                        Set(key, stringValue);
                         break;
 
                     case long longValue:
-                        Set(optionPair.Key, longValue);
+                        Set(key, longValue);
                         break;
 
                     case null:
-                        Set(optionPair.Key, null);
+                        Set(key, null);
                         break;
 
                     default:
-                        throw new ArgumentException($"{optionPair.Value} is of unsupported type {optionPair.Value.GetType()}");
+                        throw new ArgumentException($"{value} is of unsupported type {value.GetType()}");
                 }
             }
         }
-        
+
         public AvDictionary Set(string key, string value, int flags = 0)
         {
             Log.Enter($"{key}={value}");
 
             fixed (Interop.AVDictionary** dictionaryPtr = &_avDictionary)
-                if( Interop.FFmpeg.av_dict_set(dictionaryPtr, key, value, flags) != 0)
+                if (Interop.FFmpeg.av_dict_set(dictionaryPtr, key, value, flags) != 0)
                     throw new ArgumentException($"Failed to set {key} to {value}");
 
             Log.Exit(Interop.FFmpeg.av_dict_count(_avDictionary).ToString());

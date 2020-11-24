@@ -20,7 +20,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Demuxer.Common;
-using Demuxer.FFmpeg;
 
 namespace Demuxer
 {
@@ -34,8 +33,9 @@ namespace Demuxer
     public interface IDemuxer : IDisposable
     {
         bool IsInitialized();
-        Task<ClipConfiguration> InitForUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options=null);
+        Task<ClipConfiguration> InitForUrl(string url, IReadOnlyCollection<KeyValuePair<string, object>> options = null);
         Task<ClipConfiguration> InitForEs();
+        Task<Packet> NextPacket(CancellationToken token);
         Task<Packet> NextPacket();
         void PushChunk(byte[] chunk);
         Task Completion { get; }

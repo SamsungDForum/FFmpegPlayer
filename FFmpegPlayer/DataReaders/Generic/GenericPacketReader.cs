@@ -20,18 +20,20 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Demuxer.Common;
-using FFmpegPlayer.DataPresenters;
+using FFmpegPlayer.Common;
 using FFmpegPlayer.DataProviders;
 
 namespace FFmpegPlayer.DataReaders.Generic
 {
-    public class GenericDataReader : DataReader
+    public sealed class GenericPacketReader : DataReader
     {
         private static readonly TimeSpan ResubmitDelay = TimeSpan.FromMilliseconds(150);
         private CancellationTokenSource _readSessionCts;
         private Task<Task> _readLoopTaskTask;
 
-        private static async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
+        private event ErrorDelegate ErrorHandler;
+
+        private async Task ReadLoop(DataProvider dataProvider, PresentPacketDelegate presentPacket, CancellationToken token)
         {
             Log.Enter();
 
@@ -46,6 +48,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                     packet = await dataProvider.NextPacket(token);
                     if (packet == null)
                     {
+                        // null packet indicates end of all streams.
                         presentPacket(null);
                         return;
                     }
@@ -53,7 +56,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                     var scheduleAfter = scheduler.Schedule(packet);
                     if (scheduleAfter != default)
                     {
-                        Log.Verbose($"{packet.StreamType}: {packet.Pts} delaying by {scheduleAfter}");
+                        Log.Verbose($"{packet.Pts} {packet.StreamType} delaying {scheduleAfter}");
                         await Task.Delay(scheduleAfter, token);
                     }
 
@@ -61,12 +64,10 @@ namespace FFmpegPlayer.DataReaders.Generic
                     while (result != PresentPacketResult.Success)
                     {
                         if (result == PresentPacketResult.Fail)
-                        {
-                            packet.Dispose();
-                            packet = null;
-                            return;
-                        }
+                            throw new Exception($"PresentPacket failed {packet.Pts} {packet.StreamType}");
 
+                        // PresentPacketResult.Retry
+                        Log.Warn($"{packet.Pts} {packet.StreamType} Resubmit {ResubmitDelay}");
                         await Task.Delay(ResubmitDelay, token);
                         result = presentPacket(packet);
                     }
@@ -79,6 +80,17 @@ namespace FFmpegPlayer.DataReaders.Generic
             {
                 Log.Info("Cancelled");
             }
+            catch (Exception e)
+            {
+                var errorMsg = e.ToString();
+                Log.Fatal(errorMsg);
+
+                // Not much point in trying to resubmit a packet..
+                packet?.Dispose();
+                packet = null;
+
+                ErrorHandler?.Invoke(errorMsg);
+            }
             finally
             {
                 // Abandoned packet
@@ -86,7 +98,7 @@ namespace FFmpegPlayer.DataReaders.Generic
                 {
                     // Last chance scenario. Try pushing it. If cancellation was requested, we'll loose one packet less
                     if (presentPacket(packet) != PresentPacketResult.Success)
-                        Log.Warn($"{packet.StreamType}: Abandoned packet {packet.Pts}");
+                        Log.Warn($"{packet.Pts} {packet.StreamType} Abandoned");
 
                     packet.Dispose();
                 }
@@ -98,14 +110,30 @@ namespace FFmpegPlayer.DataReaders.Generic
             }
         }
 
-        public override IDisposable NewSession(DataProvider dataProvider, PresentPacketDelegate presentPacket)
+        public override DataReader With(DataProvider dataProvider, PresentPacketDelegate presentPacket)
         {
-            _readSessionCts = new CancellationTokenSource();
+            Log.Enter($"{dataProvider.GetType()}, {presentPacket.GetType()}");
 
+            if (ErrorHandler == null)
+                Log.Warn($"{nameof(ErrorHandler)} not set before start");
+
+            _readSessionCts = new CancellationTokenSource();
             _readLoopTaskTask = Task.Factory.StartNew(
                 () => ReadLoop(dataProvider, presentPacket, _readSessionCts.Token),
                 TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach);
+            Log.Info("DataReader starting");
 
+            Log.Exit();
+            return this;
+        }
+
+        public override DataReader AddHandler(ErrorDelegate errorHandler)
+        {
+            Log.Enter(nameof(ErrorDelegate));
+
+            ErrorHandler += errorHandler;
+
+            Log.Exit();
             return this;
         }
 
@@ -113,23 +141,27 @@ namespace FFmpegPlayer.DataReaders.Generic
         {
             Log.Enter();
 
+            Log.Info($"Terminating ReadLoop: {_readLoopTaskTask != null}");
             _readSessionCts?.Cancel();
+            _readLoopTaskTask = null;
+
             _readSessionCts?.Dispose();
             _readSessionCts = null;
-            _readLoopTaskTask = null;
+
+            ErrorHandler = null;
 
             Log.Exit();
         }
 
-        public override Task DisposeAsync(IDisposable session)
+        public override Task DisposeAsync()
         {
             Log.Enter();
 
-            var completionTask = _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask;
-            session?.Dispose();
+            var disposalComplete = _readLoopTaskTask?.GetAwaiter().GetResult() ?? Task.CompletedTask;
+            Dispose();
 
             Log.Exit();
-            return completionTask;
+            return disposalComplete;
         }
     }
 }

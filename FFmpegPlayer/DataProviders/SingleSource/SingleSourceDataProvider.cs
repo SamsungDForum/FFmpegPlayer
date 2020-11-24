@@ -28,6 +28,7 @@ namespace FFmpegPlayer.DataProviders.SingleSource
     public sealed class SingleSourceDataProvider : DataProvider
     {
         public override ClipConfiguration CurrentConfiguration { get; protected set; }
+
         private DataSource _dataSource;
 
         public override async Task<ClipConfiguration> Open()
@@ -41,11 +42,9 @@ namespace FFmpegPlayer.DataProviders.SingleSource
             return config;
         }
 
-        public override ValueTask<Packet> NextPacket(CancellationToken token)
+        public override Task<Packet> NextPacket(CancellationToken token)
         {
-            // TODO: Move token usage down, past data source, all the way to demux so reading a packet at lowest level can be aborted.
-            token.ThrowIfCancellationRequested();
-            return _dataSource.NextPacket();
+            return _dataSource.NextPacket(token);
         }
 
         public override Task<TimeSpan> Seek(TimeSpan position)

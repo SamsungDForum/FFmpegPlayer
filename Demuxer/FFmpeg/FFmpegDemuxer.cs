@@ -40,6 +40,8 @@ namespace Demuxer.FFmpeg
         private ChunksBuffer buffer;
         private TaskCompletionSource<bool> completionSource;
 
+        private OperationMonitor _operationMonitor = new OperationMonitor();
+
         public FFmpegDemuxer(IFFmpegGlue ffmpegGlue)
         {
             this.ffmpegGlue = ffmpegGlue;
@@ -83,6 +85,7 @@ namespace Demuxer.FFmpeg
             try
             {
                 formatContext = ffmpegGlue.AllocFormatContext();
+                formatContext.IoInterrupt = () => _operationMonitor.CancelOrTimeout();
                 formatContext.ProbeSize = ProbeSize;
                 formatContext.MaxAnalyzeDuration = TimeSpan.FromSeconds(10);
 
@@ -198,6 +201,22 @@ namespace Demuxer.FFmpeg
             return streamId >= 0 ? streamId : formatContext.FindBestStream(mediaType);
         }
 
+        public Task<Packet> NextPacket(CancellationToken token)
+        {
+            if (!IsInitialized())
+                throw new InvalidOperationException();
+
+            return thread.Factory.StartNew(() =>
+            {
+                _operationMonitor.Start(token);
+                var packet = formatContext.NextPacket(audioIdx, videoIdx);
+                _operationMonitor.End();
+                if (packet == null)
+                    completionSource?.SetResult(true);
+                return packet;
+            }, token);
+        }
+
         public Task<Packet> NextPacket()
         {
             if (!IsInitialized())
@@ -205,8 +224,7 @@ namespace Demuxer.FFmpeg
 
             return thread.Factory.StartNew(() =>
             {
-                var streamIndexes = new[] { audioIdx, videoIdx };
-                var packet = formatContext.NextPacket(streamIndexes);
+                var packet = formatContext.NextPacket(audioIdx, videoIdx);
                 if (packet == null)
                     completionSource?.SetResult(true);
                 return packet;
@@ -247,9 +265,10 @@ namespace Demuxer.FFmpeg
                 if (videoIdx != -1)
                     index = videoIdx;
 
-                Logger.Info("SeekStart");
+                // Token cancelled only. Timeouts.. not yet checked.
+                _operationMonitor.Start(token, true);
                 formatContext.Seek(index, time);
-                Logger.Info("SeekEnd");
+                _operationMonitor.End();
                 return time;
             }, token);
         }
@@ -312,7 +331,7 @@ namespace Demuxer.FFmpeg
         public void Dispose()
         {
             Reset();
-            this.ffmpegGlue.Dispose();
+            ffmpegGlue.Dispose();
         }
     }
 }

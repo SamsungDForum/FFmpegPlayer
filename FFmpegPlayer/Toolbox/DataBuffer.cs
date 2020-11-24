@@ -47,10 +47,10 @@ namespace FFmpegPlayer.Toolbox
             Log.Enter();
 
             _dataBufferChannel.Writer.Complete();
-            bool disposeRequired = typeof(IDisposable).IsAssignableFrom(typeof(T));
 
-            if (disposeRequired)
+            if (typeof(IDisposable).IsAssignableFrom(typeof(T)))
             {
+                // Stored type is IDisposable.
                 int disposeCount = 0;
                 while (_dataBufferChannel.Reader.TryRead(out var p))
                 {
