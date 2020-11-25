@@ -41,7 +41,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg.Options
         /// <summary>
         /// Socket receive buffer size (in bytes).
         /// </summary>
-        public const string RecieveBufferSize = "recv_buffer_size";
+        public const string ReceiveBufferSize = "recv_buffer_size";
         /// <summary>
         /// Use TCP_NODELAY to disable nagle's algorithm. Yes(1), No(0).
         /// </summary>

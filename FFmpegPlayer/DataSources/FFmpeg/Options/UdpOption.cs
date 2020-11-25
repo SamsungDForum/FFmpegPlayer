@@ -52,7 +52,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg.Options
         /// </summary>
         public const string PacketSize = "pkt_size";
         /// <summary>
-        /// Eexplicitly allow socket reuse. Yes(1) Allowed, No(0) Not allowed.
+        /// Explicitly allow socket reuse. Yes(1) Allowed, No(0) Not allowed.
         /// </summary>
         public const string ReuseSocket = "reuse_socket";
         /// <summary>
@@ -80,11 +80,13 @@ namespace FFmpegPlayer.DataSources.FFmpeg.Options
         /// </summary>
         public const string Timeout = "timeout";
         /// <summary>
-        /// List allowed source IP addresses. 
+        /// List allowed source IP addresses, comma separated.
+        /// ip,[ip],[ip],...
         /// </summary>
         public const string AllowedSources = "sources";
         /// <summary>
-        /// List disallowed (blocked) source IP addresses. 
+        /// List disallowed (blocked) source IP addresses, comma separated.
+        /// ip,[ip],[ip],...
         /// </summary>
         public const string BlockedSources = "block";
     }

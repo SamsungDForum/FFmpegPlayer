@@ -124,7 +124,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg.Options
             /// </summary>
             public const string FilterSource = "custom_io";
             /// <summary>
-            /// send RTCP packets to the source address of received packets.
+            /// send RTCP packets to the source address of received packets. Yes(1), No(0)
             /// </summary>
             public const string RtcpToSource = "rtcp_to_source";
             /// <summary>
