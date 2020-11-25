@@ -22,6 +22,13 @@ using System.Collections.ObjectModel;
 
 namespace FFmpegPlayer.DataSources
 {
+    public enum OptionValue : long
+    {
+        Yes = 1,
+        No = 0,
+        Autodetect = -1
+    }
+
     public class DataSourceOptions
     {
         public ReadOnlyCollection<KeyValuePair<string, object>> Options => _options.AsReadOnly();
@@ -36,6 +43,12 @@ namespace FFmpegPlayer.DataSources
         public DataSourceOptions Set(string key, long value)
         {
             _options.Add(KeyValuePair.Create<string, object>(key, value));
+            return this;
+        }
+
+        public DataSourceOptions Set(string key, OptionValue value)
+        {
+            _options.Add(KeyValuePair.Create<string, object>(key, (long)value));
             return this;
         }
 

@@ -17,46 +17,139 @@
 
 namespace FFmpegPlayer.DataSources.FFmpeg.Options
 {
-    public class RtspOption
+    // Usage references:
+    // https://github.com/FFmpeg/FFmpeg/blob/master/libavformat/rtsp.c
+    // https://ffmpeg.org/ffmpeg-protocols.html#rtsp
+    public struct RtspOption
     {
+        /// <summary>
+        /// Do not start playing the stream immediately. Yes(1), No(0)
+        /// </summary>
         public const string InitialPause = "initial_pause";
+        /// <summary>
+        /// Set RTSP transport protocols listed in
+        /// <list type="RtspOption.Transport"></list>/>
+        /// Multiple lower transport protocols may be specified,
+        /// in that case they are tried one at a time (if the setup of one fails, the next one is tried). 
+        /// </summary>
         public const string RtspTransport = "rtsp_transport";
+        /// <summary>
+        /// RTSP flags listed in
+        /// <list type="RtspOption.FlagsRtsp"></list>/>
+        /// </summary>
         public const string RtspFlags = "rtsp_flags";
+        /// <summary>
+        /// RTSP flags listed in
+        /// <list type="RtspOption.FlagsSdp"></list>/>
+        /// </summary>
+        public const string SdpFlags = "sdp_flags";
+        /// <summary>
+        /// Allowed media types listed in
+        /// <list type="RtspOption.MediaType"></list>/>
+        /// </summary>
         public const string AllowedMediaTypes = "allowed_media_types";
+        /// <summary>
+        /// Minimum local UDP port.
+        /// </summary>
         public const string MinimumPort = "min_port";
+        /// <summary>
+        /// Maximum local UDP port.
+        /// </summary>
         public const string MaximumPort = "max_port";
-        public const string IncomingConnectionTimeout = "timeout";
+        /// <summary>
+        /// Timeout (in microseconds) of socket TCP I/O operations.
+        /// </summary>
+        public const string Timeout = "timeout";
+        /// <summary>
+        /// Set number of packets to buffer for handling of reordered packets.
+        /// </summary>
         public const string ReorderQueueSize = "reorder_queue_size";
-        public const string SocketTimeout = "stimeout";
-        public const string UserAgent = "user-agent";
+        /// <summary>
+        /// Underlying protocol send/receive buffer size.
+        /// </summary>
         public const string BufferSize = "buffer_size";
+        /// <summary>
+        /// Underlying protocol send packet size.
+        /// </summary>
+        public const string PacketSize = "pkt_size";
+        /// <summary>
+        /// Override User-Agent header. If not specified, it defaults to the libavformat identifier string.
+        /// </summary>
+        public const string UserAgent = "user_agent";
 
-        public static class Pause
+        public struct Transport
         {
-            public const long On = 1;
-            public const long Off = 0;
-        }
-
-        public static class Transport
-        {
+            /// <summary>
+            /// Tcp.
+            /// </summary>
             public const string Udp = "udp";
+            /// <summary>
+            /// Udp.
+            /// </summary>
             public const string Tcp = "tcp";
+            /// <summary>
+            /// Udp multicast.
+            /// </summary>
             public const string UdpMulticast = "udp_multicast";
+            /// <summary>
+            /// Http.
+            /// </summary>
             public const string Http = "http";
+            /// <summary>
+            /// Https.
+            /// </summary>
+            public const string Https = "https";
         }
 
-        public static class Flags
+        public struct FlagsRtsp
         {
+            /// <summary>
+            /// Receive packets from the negotiated peer IP.
+            /// </summary>
             public const string FilterSource = "filter_src";
+            /// <summary>
+            /// Wait for incoming connections.
+            /// </summary>
             public const string Listen = "listen";
+            /// <summary>
+            /// Try RTP via TCP first, if available
+            /// </summary>
             public const string PreferTcp = "prefer_tcp";
         }
 
-        public static class MediaType
+        public struct FlagsSdp
         {
+            /// <summary>
+            /// Use custom I/O.
+            /// </summary>
+            public const string FilterSource = "custom_io";
+            /// <summary>
+            /// send RTCP packets to the source address of received packets.
+            /// </summary>
+            public const string RtcpToSource = "rtcp_to_source";
+            /// <summary>
+            /// Listening timeout.
+            /// </summary>
+            public const string ListemTimeout = "listen_timeout";
+        }
+
+        public struct MediaType
+        {
+            /// <summary>
+            /// Video.
+            /// </summary>
             public const string Video = "video";
+            /// <summary>
+            /// Audio.
+            /// </summary>
             public const string Audio = "audio";
+            /// <summary>
+            /// Data.
+            /// </summary>
             public const string Data = "data";
+            /// <summary>
+            /// Subtitles.
+            /// </summary>
             public const string Subtitle = "subtitle";
         }
     }
