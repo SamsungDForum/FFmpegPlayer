@@ -1,5 +1,5 @@
 ﻿/*!
- * https://github.com/SamsungDForum/JuvoPlayer
+ * https://github.com/SamsungDForum/FFmpegPlayer
  * Copyright 2020, Samsung Electronics Co., Ltd
  * Licensed under the MIT license
  *
@@ -14,6 +14,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 
 using System;
 using System.Linq;
