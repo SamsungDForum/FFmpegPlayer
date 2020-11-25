@@ -146,7 +146,7 @@ namespace FFmpegPlayer
                         .Add("rtsp://106.120.45.49/test.ts")
                         .With(new DataSourceOptions()
                             .Set(RtspOption.BufferSize, 1024 * 1024)
-                            .Set(RtspOption.SocketTimeout, 5 * 1000000))));
+                            .Set(RtspOption.Timeout, 5 * 1000000))));
 
             try
             {
