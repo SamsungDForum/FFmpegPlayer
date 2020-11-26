@@ -1,0 +1,64 @@
+@startuml EsPlayerPresenterOpen
+hide footbox
+
+participant DataPresenter <<EsPlayerPresenter>>
+participant DataProvider
+participant FactoryDelegate <<DataReader>>
+participant DataReader
+participant ESPlayer
+
+activate DataPresenter
+
+[-> DataPresenter : Open( Window )
+
+DataPresenter -> DataProvider : Open()
+activate DataProvider
+DataPresenter <-- DataProvider : openTask
+
+group ESPlayer player = CreateESplayer( Window )
+    DataPresenter -> ESPlayer : _esPlayer = new ESPlayer()
+    activate ESPlayer
+    DataPresenter -> ESPlayer : Open()
+    DataPresenter -> ESPlayer : SetDisplay( Window )
+    DataPresenter -> ESPlayer : attach OnEOS / OnError / OnBufferStatusChanged handlers
+end
+
+DataPresenter -> DataPresenter : clipConfig = await openTask;
+
+...
+DataPresenter <-- DataProvider : ClipConfiguration
+
+group (readyToTransferTask, prepareAsyncTask) PrepareESplayer( ESPlayer, ICollection<StreamConfig>)
+    loop foreach( config in IList<StreamConfig>)
+        note right DataPresenter
+            AV configs only in ESPlayer format.
+        end note    
+        DataPresenter -> ESPlayer : SetStream( config )
+    end
+    DataPresenter -> DataPresenter : readyToTransferTcs = new TaskCompletionSource()
+    DataPresenter -> ESPlayer : preapreAsyncTask = PrepareAsync()
+    DataPresenter <-- ESPlayer : Task
+        
+    par Parallel with await readyToTransferTask
+        DataPresenter <<- ESPlayer : onReadyToPrepare( stream )
+
+        alt All streams reported onReadyToPreapre
+            DataPresenter <- DataPresenter : readyToTransferTcs.SetResult()
+        end
+    end
+end
+
+DataPresenter -> DataPresenter : await readyToTransferTcs.Task
+...
+
+DataPresenter -> FactoryDelegate : _dataReaderSession = FactoryDelegate()
+FactoryDelegate -> DataReader
+activate DataReader
+DataPresenter <-- FactoryDelegate : DataReader
+
+DataPresenter -> DataPresenter : await prepareAsyncTask
+...
+
+DataPresenter -> ESPlayer : Start()
+[<-- DataPresenter
+@enduml

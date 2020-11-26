@@ -1,0 +1,109 @@
+@startuml BufferedGenericSource
+hide footbox
+
+participant DataSource <<BufferedGenericSource>>
+participant ErrorHandler
+participant DataBuffer <<Packet>>
+participant FFmpegDemuxer
+
+activate DataSource
+...
+[-> DataSource : Add( string[] )
+DataSource -> DataSource : _sourceUrls = string[]
+[<-- DataSource : DataSource
+
+...
+[-> DataSource : With( DataSourceOptions )
+DataSource -> DataSource : _options = DataSourceOptions
+[<-- DataSource : DataSource
+
+...
+[-> DataSource : AddHandler( ErrorDelegate )
+DataSource -> ErrorHandler : ErrorHandler = ErrorDelegate
+activate ErrorHandler
+[<-- DataSource : DataSource
+
+...
+[-> DataSource : Open()
+DataSource -> DataSource : _sessionCts = new CancellationTokenSource()
+DataSource -> FFmpegDemuxer : new( new FFmpegGlue() )
+activate FFmpegDemuxer
+DataSource -> FFmpegDemuxer : clipConfig = await InitForUrl( _sourceUrls[0], _options )
+...
+DataSource -> DataSource : DataSource -> DataSource : StartBufferWriteLoop( CancellationToken )
+[<-- DataSource : ClipConfiguration
+
+group BufferWriteLoop( CancellationToken )
+    alt DataBuffer == null : DataBuffer not created
+        DataSource -> DataBuffer : new DataBuffer()
+        activate DataBuffer
+    end
+
+    loop Continue submitting packets
+        DataSource -> FFmpegDemuxer : await NextPacket( CancellationToken )
+        ...
+        DataSource <-- FFmpegDemuxer : Packet
+        DataSource -> DataBuffer : Add( Packet )
+    end
+
+    alt Exception != OperationCancelledException
+        DataSource -> ErrorHandler : Invoke( Error Message )
+    end
+end
+
+...
+[-> DataSource : NextPacket( CancellationToken )
+DataSource -> DataBuffer : await Take( CancellationToken )
+...
+DataSource <-- DataBuffer : Packet
+[<-- DataSource : Packet
+
+...
+[-> DataSource : Seek( TimeSpan )
+DataSource -> DataSource : await BufferWriteLoop completion
+...
+DataSource -> DataBuffer : Dispose()\nDataBuffer = null
+destroy DataBuffer
+note left
+When DataBuffer = null, BufferWriteLoop
+will create new DataBuffer on start.
+end note
+
+DataSource -> FFmpegDemuxer : await Seek( TimeSpan, CancellationToken )
+...
+DataSource <-- FFmpegDemuxer : TimeSpan
+DataSource -> DataSource : DataSource -> DataSource : StartBufferWriteLoop( CancellationToken )
+[<-- DataSource : TimeSpan
+
+...
+[-> DataSource : Suspend()
+DataSource -> DataSource : await BufferWriteLoop completion
+...
+DataSource -> FFmpegDemuxer : bool = await Pause()
+...
+DataSource <-- FFmpegDemuxer : bool
+[<-- DataSource : bool
+
+...
+[-> DataSource : Resume()
+DataSource -> FFmpegDemuxer : Play()
+DataSource <-- FFmpegDemuxer : Task<bool>
+DataSource -> DataSource : StartBufferWriteLoop( CancellationToken )
+[<-- DataSource : Task<bool>
+
+...
+[-> DataSource : Dispose()
+activate DataBuffer
+DataSource -> DataSource : Wait BufferWriteLoop completion
+...
+DataSource -> FFmpegDemuxer : Dispose()
+destroy FFmpegDemuxer
+DataSource -> DataBuffer : Dispose()
+destroy DataBuffer
+DataSource -> ErrorHandler : ErrorHandler = null
+destroy ErrorHandler
+[<-- DataSource
+destroy DataSource
+
+
+@enduml

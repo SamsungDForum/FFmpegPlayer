@@ -1,0 +1,35 @@
+@startuml ToolboxDataBuffer
+hide footbox
+
+participant DataBuffer <<T>>
+participant Channel<<T>>
+
+activate DataBuffer
+activate Channel
+
+[-> DataBuffer : Add( T )
+DataBuffer -> Channel : TryWrite( T )
+DataBuffer <-- Channel : bool
+[<- DataBuffer : bool
+
+...
+[-> DataBuffer : Take( CancellationToken )
+DataBuffer -> Channel : ReadAsync( CancellationToken )
+DataBuffer <-- Channel : ValueTask<T>
+[<- DataBuffer : ValueTask<T>
+
+...
+[-> DataBuffer : Dispose()
+DataBuffer -> Channel : Complete()
+alt T is IDisposable
+    loop All elements stored in Channel
+        DataBuffer -> Channel : TryRead()
+        DataBuffer <-- Channel : T
+        DataBuffer -> DataBuffer : T.Dispose()
+    end
+    destroy Channel
+end
+[<-- DataBuffer
+destroy DataBuffer
+@enduml
+

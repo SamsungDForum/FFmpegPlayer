@@ -1,0 +1,97 @@
+@startuml GenericPacketReader
+hide footbox
+
+participant DataReader <<GenericPacketReader>>
+participant DataProvider
+participant GenericScheduler
+participant PresentPacketDelegate
+participant ErrorHandler
+
+...
+[-> DataReader : DataReader AddHandler( ErrorDelegate )
+DataReader -> ErrorHandler : ErrorHandler = ErrorDelegate
+activate ErrorHandler
+[<-- DataReader : DataReader
+
+...
+[-> DataReader : DataReader\nWith( DataProvider, PresentPacketDelegate, CancellationToken )
+DataReader -> DataReader : _readSessionCts = new CancellationTokenSource()
+DataReader -> DataReader : _readLoopTask = FactoryRun( ReadLoop )
+activate DataReader
+[<-- DataReader : DataReader
+
+group ReadLoop( DataProvider, PresentPacketDelegate, CancellationToken )
+
+    activate DataProvider
+    activate PresentPacketDelegate
+    DataReader -> GenericScheduler : scheduler = new GenericScheduler()
+    activate GenericScheduler
+
+    loop while( !token.IsCancellationRequested )
+        DataReader -> DataProvider : packet = await NextPacket( token )
+        ...
+        DataReader <-- DataProvider : Packet
+        DataReader -> GenericScheduler : presentationDelay = Schedule( packet )
+        DataReader <-- GenericScheduler : TimeSpan
+        |||
+        alt presentationDelay != default Packet delay required
+            DataReader -> DataReader : await TaskDelay( presentationDelay, token)
+            ...
+        end
+        |||
+        DataReader -> PresentPacketDelegate : result = Invoke( packet )
+        DataReader <-- PresentPacketDelegate : PresentPacketResult
+        |||
+        loop result != PresentationPacketResult.Success
+            alt result == PresentationPacketResult.Fail
+                DataReader -> DataReader : Throw Exception
+            end
+
+            DataReader -> DataReader : await Task.Delay( ResubmitDelay, token)
+            ...
+            DataReader -> PresentPacketDelegate : result = Invoke( packet )
+            DataReader <-- PresentPacketDelegate : PresentPacketResult
+        end
+    end
+    |||
+    alt Exception != OperationCancelledException
+         DataReader -> DataReader : packet.Dispose()\npacket = null
+         note right
+         Packet disposed & nullified to prevent exit resubmission
+         endnote 
+         DataReader -> ErrorHandler : Invoke()
+         
+    end
+    |||
+    alt packet ! = null : Unpushed packet
+        DataReader -> PresentPacketDelegate : Invoke( packet )
+        note over DataReader 
+        token cancellation may result in packet being unpresented. 
+        Present it. Best way to assure no packet loss.
+        endnote
+        DataReader -> DataReader : packet.Dispose()
+    end
+    |||
+    DataReader -> GenericScheduler : Dispose()
+    destroy GenericScheduler
+    
+end 
+deactivate DataReader
+deactivate DataProvider
+deactivate PresentPacketDelegate
+
+...
+[-> DataReader : DisposseAsync()
+DataReader -> DataReader : Task = _readLoopTaskTask
+DataReader -> DataReader : Dispose()
+[<-- DataReader : Task
+
+...
+[-> DataReader : Dispose()
+DataReader -> ErrorHandler
+deactivate ErrorHandler
+
+[<-- DataReader
+destroy DataReader
+
+@enduml

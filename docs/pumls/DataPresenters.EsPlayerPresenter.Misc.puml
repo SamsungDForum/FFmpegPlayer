@@ -1,0 +1,65 @@
+@startuml EsPlayerPresenterMisc
+hide footbox
+
+participant DataPresenter <<EsPlayerPresenter>>
+participant DataProvider
+participant DataReader
+participant ESPlayer
+
+...
+[-> DataPresenter : With( DataProvider )
+DataPresenter -> DataPresenter : _dataProvider = DataProvider
+[<-- DataPresenter
+
+...
+[-> DataPresenter : With( FactoryDelegate<DataReader> )
+DataPresenter -> DataPresenter : _createDataReader = FactoryDelegate<DataReader>
+[<-- DataPresenter
+
+...
+[-> DataPresenter : AddHandler( EosDelegate, ErrorDelegate )
+DataPresenter -> DataPresenter : EosHandler += EosDelegate\nErrorHandler += ErrorDelegate 
+[<-- DataPresenter
+
+...
+[-> DataPresenter : SeekNextPosition( SeekDirection, TimeSpan)
+DataPresenter -> ESPlayer : position = GetPlayingTime()
+alt SeekDirection == Forward
+    DataPresenter -> DataPresenter : position += SeekDistance\nClip position to TimeSpan
+else
+    DataPresenter -> DataPresenter : position -= SeekDistance\nClip position to TimeSpan.Zero    
+end
+[<-- DataPresenter : TimeSpan
+
+...
+[-> DataPresenter : PresentPacket( Packet )
+alt Packet == null End Of Stream
+    loop stream in DataProvider.CurrentConfiguration.StreamConfigs
+        DataPresenter -> ESPlayer : SubmitEOSPacket( stream.ESStreamType() )
+    end
+[<-- DataPresenter : PresentPacketResult.Success
+end
+
+DataPresenter -> ESPlayer : submit = Submit( Packet )
+DataPresenter <-- ESPlayer : SubmitStatus
+alt SubmitStatus.Fail
+    DataPresenter -> DataPresenter : ErrorDelegate.Invoke()
+end
+[<-- DataPresenter : PresentPacketResult.Success / Retry / Fail
+
+...
+[-> DataPresenter : Dispose()
+activate DataProvider
+activate DataReader
+activate ESPlayer
+
+DataPresenter -> DataReader : DisposeAsync()
+destroy DataReader
+DataPresenter -> DataProvider : Dispose()
+destroy DataProvider
+DataPresenter -> ESPlayer : Dispose()
+destroy ESPlayer
+
+[<-- DataPresenter
+destroy DataPresenter
+@enduml

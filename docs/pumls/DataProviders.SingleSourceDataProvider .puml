@@ -1,0 +1,51 @@
+@startuml SingleSourceDataProvider
+hide footbox
+
+participant DataProvider <<SingleSourceDataProvider>>
+participant DataSource
+
+...
+[-> DataProvider : Open()
+activate DataProvider
+DataProvider -> DataSource : ClipConfiguration = await Open()
+activate DataSource
+...
+DataProvider <-- DataSource : ClipConfiguration
+[<-- DataProvider : ClipConfiguration
+
+...
+[-> DataProvider : NextPacket( CancellationToken )
+DataProvider -> DataSource : NextPacket()
+DataProvider <-- DataSource : Task<Packet>
+[<-- DataProvider : Task<Packet>
+
+...
+[-> DataProvider : Seek( TimeSpan )
+DataProvider -> DataSource : Seek( TimeSpan )
+DataProvider <-- DataSource : Task<TimeSpan>
+[<-- DataProvider : Task<TimeSpan>
+
+...
+[-> DataProvider : Suspend()
+DataProvider -> DataSource : Suspend()
+DataProvider <-- DataSource : Task<bool>
+[<-- DataProvider : Task<bool>
+
+...
+[-> DataProvider : Resume()
+DataProvider -> DataSource : Resume()
+DataProvider <-- DataSource : Task<bool>
+[<-- DataProvider : Task<bool>
+
+...
+[-> DataProvider : Add( DataSource[] )
+DataProvider -> DataProvider : _dataSource = DataSource[0]
+[<-- DataProvider : DataProvider
+
+...
+[-> DataProvider : Dispose()
+DataProvider -> DataSource : Dispose()
+destroy DataSource
+[<-- DataProvider
+destroy DataProvider
+@enduml

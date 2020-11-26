@@ -1,0 +1,43 @@
+@startuml EsPlayerPresenterSuspendResume
+hide footbox
+
+participant DataPresenter
+participant DataProvider
+participant FactoryDelegate <<DataReader>>
+participant DataReader
+participant ESPlayer
+
+activate DataReader
+activate DataProvider
+activate ESPlayer
+activate FactoryDelegate
+...
+
+[-> DataPresenter : Suspend()
+alt _dataReaderSession != null
+    DataPresenter -> ESPlayer : Pause()
+    DataPresenter -> DataProvider : suspendTask = Suspend()
+    DataPresenter <-- DataProvider : Task
+    deactivate DataProvider
+    DataPresenter -> DataReader : disposeTask = DisposeAsync()
+    DataPresenter <-- DataReader : Task
+    destroy DataReader
+end
+[<-- DataPresenter : Task.WhenAll( suspendTask,disposeTask )
+...
+
+[-> DataPresenter : Resume()
+alt _dataReaderSession == null
+    DataPresenter -> DataProvider : resumeTask = Resume()
+    DataPresenter <-- DataProvider : Task
+    activate DataProvider
+    DataPresenter -> ESPlayer : Resume()
+    
+    DataPresenter -> FactoryDelegate : _dataReaderSession = FactoryDelegate()
+    FactoryDelegate -> DataReader
+    activate DataReader
+    DataPresenter <-- FactoryDelegate : DataReader
+end
+[<-- DataPresenter : resumeTask
+
+@enduml
