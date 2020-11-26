@@ -178,7 +178,12 @@ namespace Demuxer.FFmpeg
                 }
 
                 if (ret != 0)
-                    throw new FFmpegException("Cannot open AVFormatContext");
+                {
+                    var errorMsg = $"{GetErrorText(ret)}. avformat_open_input() failed.";
+                    Logger.Fatal(errorMsg);
+                    throw new FFmpegException(errorMsg);
+                }
+                    
             }
         }
 

@@ -54,7 +54,11 @@ namespace FFmpegPlayer.Toolbox
                 int disposeCount = 0;
                 while (_dataBufferChannel.Reader.TryRead(out var p))
                 {
-                    ((IDisposable)p).Dispose();
+                    // Who said there can be no null?
+                    if (!(p is IDisposable toDispose))
+                        continue;
+
+                    toDispose.Dispose();
                     disposeCount++;
                 }
 

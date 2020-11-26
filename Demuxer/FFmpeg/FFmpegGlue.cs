@@ -34,7 +34,7 @@ namespace Demuxer.FFmpeg
                 Interop.FFmpeg.avformat_network_init();
                 unsafe
                 {
-                    Interop.FFmpeg.av_log_set_level(FFmpegMacros.AV_LOG_DEBUG);
+                    Interop.FFmpeg.av_log_set_level(FFmpegMacros.AV_LOG_INFO);
                     Interop.av_log_set_callback_callback logCallback = (p0, level, format, vl) =>
                     {
                         if (level > Interop.FFmpeg.av_log_get_level()) return;
