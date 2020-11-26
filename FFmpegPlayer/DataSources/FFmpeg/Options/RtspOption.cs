@@ -130,7 +130,7 @@ namespace FFmpegPlayer.DataSources.FFmpeg.Options
             /// <summary>
             /// Listening timeout.
             /// </summary>
-            public const string ListemTimeout = "listen_timeout";
+            public const string ListenTimeout = "listen_timeout";
         }
 
         public struct MediaType
