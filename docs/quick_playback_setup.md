@@ -10,7 +10,7 @@ Playback requires an instance of DataPresenter with a specified DataReader and D
 DataProvider acts as a consumption point for contained DataSources.
 DataSource may have protocol options attached to them.
 
-DataPresenter defines playback control API, acting as a goo layer connecting Tizen TV platform player and DataProvider. 
+DataPresenter defines playback control API, acting as a connecting layer between Tizen TV platform player and DataProvider. 
     
 DataPresenter API offers basic seek, suspend and resume functionality, source allowing.
 
