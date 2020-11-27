@@ -1,0 +1,65 @@
+@startuml EsPlayerPresenterSeek
+hide footbox
+
+participant DataPresenter <<EsPlayerPresenter>>
+participant DataProvider
+participant FactoryDelegate <<DataReader>>
+participant DataReader
+participant ESPlayer
+
+activate DataReader
+
+[-> DataPresenter : Seek( SeekDirection )
+DataPresenter -> DataProvider : streamDuration = CurrentConfiguration.Duration
+DataPresenter <-- DataProvider : TimeSpan
+alt streamDuration == TimeSpan.Zero Stream not seekable
+[<-- DataPresenter
+end
+
+DataPresenter -> DataPresenter : resumeAfterSeek = _dataReaderSession != null
+alt resumeAfterSeek == true Currently playing
+    DataPresenter -> ESPlayer : Pause()
+    DataPresenter -> DataReader : await DisposeAsync()
+    destroy DataReader
+end
+
+DataPresenter -> DataPresenter : position = SeekNextPosition(direction, streamDuration)
+DataPresenter -> DataProvider : seekDataTask = Seek( position )
+DataPresenter <-- DataProvider : Task
+
+|||
+group (readyToTransferTask, seekAsyncTask)  = SeekESplayer( ESPlayer, TimeSpan, int )
+    DataPresenter -> DataPresenter : readyToTransferTcs = new TaskCompletionSource()
+    DataPresenter -> ESPlayer : seekAsyncTask = SeekAsync( position )
+    DataPresenter <-- ESPlayer : Task
+    
+    par Parallel with await Task.WhenAll(readyToTransferTcs.Task, seekDataTask)
+        DataPresenter <<- ESPlayer : onReadyToSeek( StreamType, TimeSpan )
+
+        alt All streams reported onReadyToSeek
+            DataPresenter <- DataPresenter : readyToTransferTcs.SetResult()
+        end
+    end
+end
+|||
+DataPresenter -> DataPresenter : await Task.WhenAll( readyToTransferTcs.Task, seekDataTask )
+...
+DataPresenter -> FactoryDelegate : session = FactoryDelegate()
+FactoryDelegate -> DataReader
+activate DataReader
+DataPresenter <-- FactoryDelegate : DataReader
+
+DataPresenter -> DataPresenter : await seekAsyncTask
+...
+
+alt resumeAfterSeek == true
+    DataPresenter -> ESPlayer : Resume()
+    DataPresenter -> DataPresenter : _readingSession = session
+else
+    DataPresenter -> ESPlayer : Pause()
+    DataPresenter -> DataReader : session.Dispose()
+    destroy DataReader
+end
+
+[<-- DataPresenter
+@enduml

@@ -1,0 +1,60 @@
+@startuml GenericSource
+hide footbox
+
+participant DataSource <<GenericSource>>
+participant FFmpegDemuxer
+
+activate DataSource
+...
+[-> DataSource : Add( string[] )
+DataSource -> DataSource : _sourceUrls = string[]
+[<-- DataSource : DataSource
+
+...
+[-> DataSource : With( DataSourceOptions )
+DataSource -> DataSource : _options = DataSourceOptions
+[<-- DataSource : DataSource
+
+...
+[-> DataSource : Open()
+DataSource -> DataSource : _sessionCts = new CancellationTokenSource()
+DataSource -> FFmpegDemuxer : new( new FFmpegGlue() )
+activate FFmpegDemuxer
+DataSource -> FFmpegDemuxer : InitForUrl( _sourceUrls[0], _options )
+DataSource <-- FFmpegDemuxer : Task<ClipConfiguration>
+[<-- DataSource : Task<ClipConfiguration>
+
+...
+[-> DataSource : NextPacket( CancellationToken )
+DataSource -> FFmpegDemuxer : NextPacket(CancellationToken)
+DataSource <-- FFmpegDemuxer : Task<Packet>
+[<-- DataSource : Task<Packet>
+
+...
+[-> DataSource : Seek( TimeSpan )
+DataSource -> FFmpegDemuxer : Seek( TimeSpan, _sessionCts.Token )
+DataSource <-- FFmpegDemuxer : Task<TimeSpan>
+[<-- DataSource : Task<TimeSpan>
+
+...
+[-> DataSource : Suspend()
+DataSource -> FFmpegDemuxer : Pause()
+DataSource <-- FFmpegDemuxer : Task<bool>
+[<-- DataSource : Task<bool>
+
+...
+[-> DataSource : Resume()
+DataSource -> FFmpegDemuxer : Play()
+DataSource <-- FFmpegDemuxer : Task<bool>
+[<-- DataSource : Task<bool>
+
+...
+[-> DataSource : Dispose()
+DataSource -> DataSource : _sessionCts.Cancel()
+DataSource -> FFmpegDemuxer : Dispose()
+destroy FFmpegDemuxer
+[<-- DataSource
+destroy DataSource
+
+
+@enduml

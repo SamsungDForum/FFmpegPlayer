@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentScriptType="application/ecmascript" contentStyleType="text/css" height="1364px" preserveAspectRatio="none" style="width:1692px;height:1364px;" version="1.1" viewBox="0 0 1692 1364" width="1692px" zoomAndPan="magnify"><defs><filter height="300%" id="f1cw7pfb7gldb3" width="300%" x="-1" y="-1"><feGaussianBlur result="blurOut" stdDeviation="2.0"/><feColorMatrix in="blurOut" result="blurOut2" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .4 0"/><feOffset dx="4.0" dy="4.0" in="blurOut2" result="blurOut3"/><feBlend in="SourceGraphic" in2="blurOut3" mode="normal"/></filter></defs><g><!--MD5=[81c1678f3b146417d42d9549aee5a5c0]
+class DataSource--><rect codeLine="61" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="206.5469" id="DataSource" style="stroke: #A80036; stroke-width: 1.5;" width="247" x="265" y="623"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="360" y="640.457">«abstract»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="65" x="356" y="655.5508">DataSource</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="266" x2="511" y1="663.1875" y2="663.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="157" x="271" y="696.4424">Task&lt;ClipConfiguration&gt; Open()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="235" x="271" y="710.2783">Task&lt;Packet&gt; NextPacket( CancellationToken )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="177" x="271" y="724.1143">Task&lt;TimeSpan&gt; Seek( TimeSpan )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="111" x="271" y="737.9502">Task&lt;bool&gt; Suspend()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="109" x="271" y="751.7861">Task&lt;bool&gt; Resume()</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="266" x2="367.5" y1="678.1055" y2="678.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="367.5" y="682.1064">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="409.5" x2="511" y1="678.1055" y2="678.1055"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="266" x2="511" y1="758.2031" y2="758.2031"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="161" x="271" y="773.6221">DataSource Add( param string[] )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="131" x="271" y="787.458">With( DataSourceOptions )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="141" x="271" y="801.2939">WithHandler( ErrorDelegate )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="266" x2="511" y1="807.7109" y2="807.7109"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="271" y="823.1299">Dispose()</text><!--MD5=[58bc1b179fd7c81f91dccebefba3be64]
+class GenericSource--><rect codeLine="77" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="121.3672" id="GenericSource" style="stroke: #A80036; stroke-width: 1.5;" width="201" x="192" y="941.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="59" x="263" y="958.957">«FFmpeg»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="82" x="251.5" y="974.0508">GenericSource</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="193" x2="392" y1="981.6875" y2="981.6875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="99" x="198" y="1014.9424">string[] _sourceUrls;</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="138" x="198" y="1028.7783">FFmpegDemuxer _demuxer</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="198" y="1042.6143">DataSourceOptions _options</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="189" x="198" y="1056.4502">CancellationTokenSource _sessionCts</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="193" x2="280" y1="996.6055" y2="996.6055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="280" y="1000.6064">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="305" x2="392" y1="996.6055" y2="996.6055"/><!--MD5=[b4c0e2d930e090fa0cb8d076d0d36f05]
+class BufferedGenericSource--><rect codeLine="86" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="222.2188" id="BufferedGenericSource" style="stroke: #A80036; stroke-width: 1.5;" width="222" x="428.5" y="891"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="59" x="510" y="908.457">«FFmpeg»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="128" x="475.5" y="923.5508">BufferedGenericSource</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="429.5" x2="649.5" y1="931.1875" y2="931.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="96" x="434.5" y="964.4424">string[] _sourceUrls</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="138" x="434.5" y="978.2783">FFmpegDemuxer _demuxer</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="434.5" y="992.1143">DataSourceOptions _options</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="189" x="434.5" y="1005.9502">CancellationTokenSource _sessionCts</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="135" x="434.5" y="1019.7861">DataBuffer&lt;Packet&gt; _buffer</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="198" x="434.5" y="1033.6221">Task&lt;Task&gt; _bufferWriteLoopTaskTask</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="164" x="434.5" y="1047.458">event ErrorDelegate ErrorHandler</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="429.5" x2="527" y1="946.1055" y2="946.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="527" y="950.1064">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="552" x2="649.5" y1="946.1055" y2="946.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="210" x="434.5" y="1079.1299">Task BufferWriteLoop( CancellationToken )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="162" x="434.5" y="1092.9658">CancellationToken NewSession()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="205" x="434.5" y="1106.8018">StartBufferWriteLoop( CancellationToken )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="429.5" x2="518.5" y1="1060.793" y2="1060.793"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="518.5" y="1064.7939">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="560.5" x2="649.5" y1="1060.793" y2="1060.793"/><!--MD5=[0a57d2dda3bbc929928ab68bf13110d6]
+class FFmpegDemuxer--><rect codeLine="6" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="41.0938" id="FFmpegDemuxer" style="stroke: #A80036; stroke-width: 1.5;" width="101" x="7" y="706"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="95" x="10" y="723.457">FFmpegDemuxer</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="8" x2="107" y1="731.0938" y2="731.0938"/><line style="stroke: #A80036; stroke-width: 1.5;" x1="8" x2="107" y1="739.0938" y2="739.0938"/><!--MD5=[715b456216431523a20b868d681a13bb]
+class DataProvider--><rect codeLine="114" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="196.7109" id="DataProvider" style="stroke: #A80036; stroke-width: 1.5;" width="285" x="669" y="628"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="783" y="645.457">«abstract»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="72" x="775.5" y="660.5508">DataProvider</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="670" x2="953" y1="668.1875" y2="668.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="186" x="675" y="701.4424">ClipConfiguration CurrentConfiguration</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="670" x2="787" y1="683.1055" y2="683.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="49" x="787" y="687.1064">properties</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="836" x2="953" y1="683.1055" y2="683.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="212" x="675" y="733.1143">ClipConfiguration GetCurrentConfiguration()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="253" x="675" y="746.9502">Task&lt;ClipConfiguration&gt; Open( CancellationToken )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="235" x="675" y="760.7861">Task&lt;Packet&gt; NextPacket( CancellationToken )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="273" x="675" y="774.6221">Task&lt;TimeSpan&gt; Seek( TimeSpan, CancellationToken )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="670" x2="790.5" y1="714.7773" y2="714.7773"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="790.5" y="718.7783">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="832.5" x2="953" y1="714.7773" y2="714.7773"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="670" x2="953" y1="781.0391" y2="781.0391"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="198" x="675" y="796.458">DataProvider Add( param DataSource[] )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="670" x2="953" y1="802.875" y2="802.875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="675" y="818.2939">Dispose()</text><!--MD5=[41d641e712c7c63112da50bc2e522a4a]
+class SingleSourceDataProvider--><rect codeLine="129" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="64.7656" id="SingleSourceDataProvider" style="stroke: #A80036; stroke-width: 1.5;" width="152" x="735.5" y="969.5"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="146" x="738.5" y="986.957">SingleSourceDataProvider</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="736.5" x2="886.5" y1="994.5938" y2="994.5938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="123" x="741.5" y="1027.8486">DataSource _dataSource</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="736.5" x2="799" y1="1009.5117" y2="1009.5117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="799" y="1013.5127">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="824" x2="886.5" y1="1009.5117" y2="1009.5117"/><!--MD5=[40f35fe2d6e1cffa105ee65d15f1bcf9]
+class DataReader--><rect codeLine="172" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="151.2031" id="DataReader" style="stroke: #A80036; stroke-width: 1.5;" width="297" x="1104" y="651"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="1224" y="668.457">«abstract»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="67" x="1219" y="683.5508">DataReader</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1105" x2="1400" y1="691.1875" y2="691.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="273" x="1110" y="724.4424">Func&lt;DataReader&gt; CreateFactoryFor&lt;TDataReader&gt;()</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1105" x2="1231.5" y1="706.1055" y2="706.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="1231.5" y="710.1064">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1273.5" x2="1400" y1="706.1055" y2="706.1055"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="1105" x2="1400" y1="730.8594" y2="730.8594"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="285" x="1110" y="746.2783">DataReader With( DataProvider, PresentPacketDelegate );</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="201" x="1110" y="760.1143">DataReader AddHandler( ErrorDelegate )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1105" x2="1400" y1="766.5313" y2="766.5313"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="1110" y="781.9502">Dispose()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="107" x="1110" y="795.7861">Task DisposeAsync()</text><!--MD5=[356c276d8c35d19830f16e8ec5021a13]
+class GenericPacketReader--><rect codeLine="184" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="137.9453" id="GenericPacketReader" style="stroke: #A80036; stroke-width: 1.5;" width="357" x="1074" y="933"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="121" x="1192" y="950.457">GenericPacketReader</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1075" x2="1430" y1="958.0938" y2="958.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="117" x="1080" y="991.3486">TimeSpan ResubitDelay</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="212" x="1080" y="1005.1846">CancellationTokenSource _readSessionCts</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="167" x="1080" y="1019.0205">Task&lt;Task&gt; _readLoopTaskTask</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="1080" y="1032.8564">ErrorDelegate _ErrorHandler</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1075" x2="1240" y1="973.0117" y2="973.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="1240" y="977.0127">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1265" x2="1430" y1="973.0117" y2="973.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="345" x="1080" y="1064.5283">ReadLoop( DataProvider, PresentPacketDelegate, CancellationToken )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1075" x2="1231.5" y1="1046.1914" y2="1046.1914"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="1231.5" y="1050.1924">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1273.5" x2="1430" y1="1046.1914" y2="1046.1914"/><!--MD5=[9646d39859cb4239159cdb472939db6e]
+class GenericScheduler--><rect codeLine="195" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="159.7813" id="GenericScheduler" style="stroke: #A80036; stroke-width: 1.5;" width="157" x="1174" y="1191"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="99" x="1203" y="1208.457">GenericScheduler</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1175" x2="1330" y1="1216.0938" y2="1216.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="134" x="1180" y="1249.3486">TimeSpan BufferedDuration</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="129" x="1180" y="1263.1846">TimeSpan DelayThreshold</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="110" x="1180" y="1277.0205">Stopwatch _stopwatch</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="140" x="1180" y="1290.8564">TimeSpan _schedulingOffset</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1175" x2="1240" y1="1231.0117" y2="1231.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="1240" y="1235.0127">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1265" x2="1330" y1="1231.0117" y2="1231.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="145" x="1180" y="1322.5283">TimeSpan Schedule( Packet )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1175" x2="1231.5" y1="1304.1914" y2="1304.1914"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="1231.5" y="1308.1924">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="1273.5" x2="1330" y1="1304.1914" y2="1304.1914"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="1175" x2="1330" y1="1328.9453" y2="1328.9453"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="1180" y="1344.3643">Dispose()</text><!--MD5=[9926e0759e67553c8d53af7e3f31fb33]
+class DataPresenter--><rect codeLine="135" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="178.875" id="DataPresenter" style="stroke: #A80036; stroke-width: 1.5;" width="301" x="661" y="366"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="57" x="783" y="383.457">«abstract»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="79" x="772" y="398.5508">DataPresenter</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="662" x2="961" y1="406.1875" y2="406.1875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="107" x="667" y="439.4424">Task Open( Window )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="135" x="667" y="453.2783">Task Seek( SeekDirection )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="79" x="667" y="467.1143">Task Suspend()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="77" x="667" y="480.9502">Task Resume()</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="662" x2="790.5" y1="421.1055" y2="421.1055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="790.5" y="425.1064">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="832.5" x2="961" y1="421.1055" y2="421.1055"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="662" x2="961" y1="487.3672" y2="487.3672"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="261" x="667" y="502.7861">DataPresenter With( FactoryDelegate&lt;DataReader&gt; )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="289" x="667" y="516.6221">DataPresenter WithHandlers( EosDelegate, ErrorDelegate )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="662" x2="961" y1="523.0391" y2="523.0391"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="667" y="538.458">Dispose()</text><!--MD5=[ea0b61dd4406500782b4ef47609c2a9c]
+class EsPlayerPresenter--><rect codeLine="149" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="298.1406" id="EsPlayerPresenter" style="stroke: #A80036; stroke-width: 1.5;" width="309" x="795" y="7"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="102" x="898.5" y="24.457">EsPlayerPresenter</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="796" x2="1103" y1="32.0938" y2="32.0938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="120" x="801" y="65.3486">TimeSpan SeekDistance</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="97" x="801" y="79.1846">ESPlayer _esPlayer</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="135" x="801" y="93.0205">DataProvider _dataProvider</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="251" x="801" y="106.8564">FactoryDelegate&lt;DataReader&gt; _createDataReader</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="164" x="801" y="120.6924">DataReader _dataReaderSession</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="152" x="801" y="134.5283">event EosDelegate EosHandler</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="164" x="801" y="148.3643">event ErrorDelegate ErrorHandler</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="796" x2="937" y1="47.0117" y2="47.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="937" y="51.0127">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="962" x2="1103" y1="47.0117" y2="47.0117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="100" x="801" y="180.0361">EsPlayerPresenter()</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="275" x="801" y="193.8721">TimeSpan SeekNextPosition( SeekDirection, TimeSpan )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="177" x="801" y="207.708">ESPlayer CreateESplayer( Window )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="157" x="801" y="221.5439">OnEos( object, EOSEventArgs )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="165" x="801" y="235.3799">OnError( object, ErrorEventArgs )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="279" x="801" y="249.2158">OnBufferStatusChanged( object, BufferStatusEventArgs )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="297" x="801" y="263.0518">(Task, Task) PrepareESplayer( ESPlayer, ClipConfiguration )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="261" x="801" y="276.8877">(Task, Task) SeekESplayer(ESPlayer, TimeSpan, int)</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="796" x2="928.5" y1="161.6992" y2="161.6992"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="928.5" y="165.7002">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="970.5" x2="1103" y1="161.6992" y2="161.6992"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="796" x2="1103" y1="283.3047" y2="283.3047"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="226" x="801" y="298.7236">PresentPacketResult PresentPacket( Packet )</text><!--MD5=[37d4e7b909a7267eaf154fe45496e496]
+class DataBuffer--><rect codeLine="102" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="147.2031" id="DataBuffer" style="stroke: #A80036; stroke-width: 1.5;" width="215" x="432" y="1197.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="51" x="514" y="1214.957">«Packet»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="58" x="510.5" y="1230.0508">DataBuffer</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="433" x2="646" y1="1237.6875" y2="1237.6875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="158" x="438" y="1270.9424">Channel&lt;T&gt; _dataBufferChannel</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="433" x2="527" y1="1252.6055" y2="1252.6055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="527" y="1256.6064">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="552" x2="646" y1="1252.6055" y2="1252.6055"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="90" x="438" y="1302.6143">bool Add( T data );</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="203" x="438" y="1316.4502">ValueTask&lt;T&gt; Take( CancellationToken )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="433" x2="518.5" y1="1284.2773" y2="1284.2773"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="518.5" y="1288.2783">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="560.5" x2="646" y1="1284.2773" y2="1284.2773"/><line style="stroke: #A80036; stroke-width: 1.0;" x1="433" x2="646" y1="1322.8672" y2="1322.8672"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="48" x="438" y="1338.2861">Dispose()</text><!--MD5=[0f852a71f7c4a91b084cc62c8cf4760f]
+class SeekDirection--><rect codeLine="55" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="83.8594" id="SeekDirection" style="stroke: #A80036; stroke-width: 1.5;" width="83" x="1119" y="413.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="45" x="1138" y="430.957">«enum»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="77" x="1122" y="446.0508">SeekDirection</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1120" x2="1201" y1="453.6875" y2="453.6875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="41" x="1125" y="469.1064">Forward</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="49" x="1125" y="482.9424">Backward</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1120" x2="1201" y1="489.3594" y2="489.3594"/><!--MD5=[8b58529fe0c2c910f59f01a08a45f41c]
+class ESPlayer--><rect fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="41.0938" id="ESPlayer" style="stroke: #A80036; stroke-width: 1.5;" width="57" x="1217" y="135.5"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="51" x="1220" y="152.957">ESPlayer</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1218" x2="1273" y1="160.5938" y2="160.5938"/><line style="stroke: #A80036; stroke-width: 1.5;" x1="1218" x2="1273" y1="168.5938" y2="168.5938"/><!--MD5=[54c013078fe631069b81db5f22225bf7]
+class PresentPacketResult--><rect codeLine="48" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="97.6953" id="PresentPacketResult" style="stroke: #A80036; stroke-width: 1.5;" width="120" x="1558.5" y="677.5"/><text fill="#000000" font-family="sans-serif" font-size="12" font-style="italic" lengthAdjust="spacingAndGlyphs" textLength="45" x="1596" y="694.957">«enum»</text><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="114" x="1561.5" y="710.0508">PresentPacketResult</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1559.5" x2="1677.5" y1="717.6875" y2="717.6875"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="43" x="1564.5" y="733.1064">Success</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="27" x="1564.5" y="746.9424">Retry</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="17" x="1564.5" y="760.7783">Fail</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="1559.5" x2="1677.5" y1="767.1953" y2="767.1953"/><!--MD5=[1e8f5d7ac132bfe1c65f237a3034284e]
+class DataSourceOptions--><rect codeLine="208" fill="#FEFECE" filter="url(#f1cw7pfb7gldb3)" height="155.7813" id="DataSourceOptions" style="stroke: #A80036; stroke-width: 1.5;" width="300" x="238.5" y="377.5"/><text fill="#000000" font-family="sans-serif" font-size="12" lengthAdjust="spacingAndGlyphs" textLength="107" x="335" y="394.957">DataSourceOptions</text><line style="stroke: #A80036; stroke-width: 1.5;" x1="239.5" x2="537.5" y1="402.5938" y2="402.5938"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="288" x="244.5" y="435.8486">ReadOnlyCollection&lt;KeyValuePair&lt;string, object&gt;&gt; Options</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="239.5" x2="364" y1="417.5117" y2="417.5117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="49" x="364" y="421.5127">properties</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="413" x2="537.5" y1="417.5117" y2="417.5117"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="212" x="244.5" y="467.5205">List&lt;KeyValuePair&lt;string, object&gt;&gt; _options</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="239.5" x2="376" y1="449.1836" y2="449.1836"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="25" x="376" y="453.1846">fields</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="401" x2="537.5" y1="449.1836" y2="449.1836"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="189" x="244.5" y="499.1924">DataSourceOptions Set( string, string )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="182" x="244.5" y="513.0283">DataSourceOptions Set( string, long )</text><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="166" x="244.5" y="526.8643">DataSourceOptions Clear( string )</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="239.5" x2="367.5" y1="480.8555" y2="480.8555"/><text fill="#000000" font-family="sans-serif" font-size="11" lengthAdjust="spacingAndGlyphs" textLength="42" x="367.5" y="484.8564">methods</text><line style="stroke: #A80036; stroke-width: 1.0;" x1="409.5" x2="537.5" y1="480.8555" y2="480.8555"/><!--MD5=[d5c507abd2c12bf7da3b7b8542ee9da2]
+reverse link DataSource to GenericSource--><path codeLine="20" d="M345.77,849.24 C334.58,881.12 323,914.1 313.51,941.14 " fill="none" id="DataSource-backto-GenericSource" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="none" points="339.25,846.67,352.48,830.12,352.46,851.31,339.25,846.67" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[cf72d256fde76f6146e5298e9cfc259c]
+reverse link DataSource to BufferedGenericSource--><path codeLine="21" d="M455.04,848.03 C462.93,862.3 470.94,876.82 478.74,890.94 " fill="none" id="DataSource-backto-BufferedGenericSource" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="none" points="448.7,851.01,445.16,830.12,460.95,844.24,448.7,851.01" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[c6f6b89ce5c18a2161ba7edf8faf38b9]
+reverse link DataProvider to SingleSourceDataProvider--><path codeLine="23" d="M811.5,845.29 C811.5,890.6 811.5,938.75 811.5,969.31 " fill="none" id="DataProvider-backto-SingleSourceDataProvider" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="none" points="804.5,845.08,811.5,825.08,818.5,845.08,804.5,845.08" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[26776762b8b900b78def1d128c425677]
+reverse link DataReader to GenericPacketReader--><path codeLine="25" d="M1252.5,822.48 C1252.5,858.84 1252.5,899.55 1252.5,932.91 " fill="none" id="DataReader-backto-GenericPacketReader" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="none" points="1245.5,822.24,1252.5,802.24,1259.5,822.24,1245.5,822.24" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[e2bf67d509a6f86a896035d35f2f9c3e]
+link EsPlayerPresenter to DataPresenter--><path codeLine="26" d="M880.7,305.31 C874.11,319.52 867.52,333.74 861.16,347.44 " fill="none" id="EsPlayerPresenter-to-DataPresenter" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="none" points="867.43,350.56,852.67,365.75,854.73,344.67,867.43,350.56" style="stroke: #A80036; stroke-width: 1.0;"/><!--MD5=[2f7379f1e6442c9af2d1a655322ad192]
+reverse link DataProvider to DataReader--><path codeLine="30" d="M959.15,726.5 C1005.77,726.5 1057.29,726.5 1103.97,726.5 " fill="none" id="DataProvider-backto-DataReader" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="954.07,726.5,963.07,730.5,959.07,726.5,963.07,722.5,954.07,726.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="113" x="972.5" y="719.9951">implementation use</text><!--MD5=[b03b28a8e9e4f5750a88dd5077d9064a]
+reverse link ESPlayer to DataReader--><path codeLine="31" d="M1245.8,181.63 C1246.8,262.46 1249.99,521.79 1251.58,650.95 " fill="none" id="ESPlayer-backto-DataReader" style="stroke: #A80036; stroke-width: 1.0; stroke-dasharray: 7.0,7.0;"/><polygon fill="#A80036" points="1245.74,176.57,1241.8431,185.6151,1245.7971,181.5697,1249.8426,185.5237,1245.74,176.57" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="141" x="1250.5" y="452.9951">implementation uses via</text><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="137" x="1252.5" y="469.3467">PresentPacketDelegate</text><!--MD5=[924836950fc6ac741831fe36383c5cca]
+link DataReader to PresentPacketResult--><path codeLine="34" d="M1401.1,726.5 C1454,726.5 1510.88,726.5 1553.19,726.5 " fill="none" id="DataReader-to-PresentPacketResult" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="1558.28,726.5,1549.28,722.5,1553.28,726.5,1549.28,730.5,1558.28,726.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="121" x="1419.25" y="719.9951">Implementation uses</text><!--MD5=[063b42b452368f55fd68f072cd9798f5]
+reverse link FFmpegDemuxer to DataSource--><path codeLine="35" d="M113.35,726.5 C154.76,726.5 212.82,726.5 264.94,726.5 " fill="none" id="FFmpegDemuxer-backto-DataSource" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="108.13,726.5,117.13,730.5,113.13,726.5,117.13,722.5,108.13,726.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="120" x="126.5" y="719.9951">implementation uses</text><!--MD5=[5960eff44e7146bce4d283741e2840e0]
+reverse link DataSource to DataProvider--><path codeLine="36" d="M517.47,726.5 C565.25,726.5 619.71,726.5 668.66,726.5 " fill="none" id="DataSource-backto-DataProvider" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="512.27,726.5,521.27,730.5,517.27,726.5,521.27,722.5,512.27,726.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="120" x="530.5" y="719.9951">implementation uses</text><!--MD5=[8f5714a6aaaf1370fc421a38229f4f0c]
+link DataPresenter to DataProvider--><path codeLine="38" d="M811.5,545.33 C811.5,570.15 811.5,597.32 811.5,622.87 " fill="none" id="DataPresenter-to-DataProvider" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="811.5,627.96,815.5,618.96,811.5,622.96,807.5,618.96,811.5,627.96" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="120" x="812.5" y="589.4951">implementation uses</text><!--MD5=[c8a2a6bb5038e938404fe44a072abe4c]
+link DataPresenter to DataReader--><path codeLine="39" d="M956.82,545.14 C1011.37,578.42 1072.91,615.95 1125.66,648.13 " fill="none" id="DataPresenter-to-DataReader" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="1130.08,650.83,1124.4917,642.72,1125.8154,648.2199,1120.3155,649.5435,1130.08,650.83" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="120" x="1032.5" y="589.4951">implementation uses</text><!--MD5=[c052d19c7d6f1a4024d21d86807256d4]
+link DataPresenter to SeekDirection--><path codeLine="40" d="M962.04,455.5 C1016.77,455.5 1074.71,455.5 1113.76,455.5 " fill="none" id="DataPresenter-to-SeekDirection" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="1118.91,455.5,1109.91,451.5,1113.91,455.5,1109.91,459.5,1118.91,455.5" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="120" x="980.5" y="448.9951">implementation uses</text><!--MD5=[ed3ffa0b11741f30712ed8277b36161b]
+link GenericPacketReader to GenericScheduler--><path codeLine="41" d="M1252.5,1071.07 C1252.5,1105.82 1252.5,1148.43 1252.5,1185.29 " fill="none" id="GenericPacketReader-to-GenericScheduler" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="1252.5,1190.69,1256.5,1181.69,1252.5,1185.69,1248.5,1181.69,1252.5,1190.69" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="21" x="1253.5" y="1157.4951">use</text><!--MD5=[f0ebe6675deaf8fa8fd22bdf14f5f1d6]
+link EsPlayerPresenter to ESPlayer--><path codeLine="42" d="M1104,156 C1144.61,156 1184.56,156 1211.6,156 " fill="none" id="EsPlayerPresenter-to-ESPlayer" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="1216.84,156,1207.84,152,1211.84,156,1207.84,160,1216.84,156" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="21" x="1150" y="149.4951">use</text><!--MD5=[1f983fde0ec065f5a679c52630eb7bea]
+link BufferedGenericSource to DataBuffer--><path codeLine="44" d="M539.5,1113.14 C539.5,1139.69 539.5,1167.52 539.5,1192.24 " fill="none" id="BufferedGenericSource-to-DataBuffer" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="539.5,1197.47,543.5,1188.47,539.5,1192.47,535.5,1188.47,539.5,1197.47" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="21" x="540.5" y="1157.4951">use</text><!--MD5=[c52d4ead503a5ea82d3e865549fbfa91]
+reverse link DataSourceOptions to DataSource--><path codeLine="46" d="M388.5,538.84 C388.5,565.34 388.5,595.04 388.5,622.82 " fill="none" id="DataSourceOptions-backto-DataSource" style="stroke: #A80036; stroke-width: 1.0;"/><polygon fill="#A80036" points="388.5,533.58,384.5,542.58,388.5,538.58,392.5,542.58,388.5,533.58" style="stroke: #A80036; stroke-width: 1.0;"/><text fill="#000000" font-family="sans-serif" font-size="13" lengthAdjust="spacingAndGlyphs" textLength="113" x="389.5" y="589.4951">implementation use</text><!--MD5=[e40c79adb8daa45a748ae8a6fb3ecf92]
+@startuml ClassModel
+hide circle
+
+class DataSource <<abstract>>
+class GenericSource <<FFmpeg>>
+class BufferedGenericSource <<FFmpeg>>
+class FFmpegDemuxer
+
+class DataProvider <<abstract>>
+class SingleSourceDataProvider 
+
+class DataReader <<abstract>>
+class GenericPacketReader
+class GenericScheduler
+
+class DataPresenter <<abstract>>
+class EsPlayerPresenter
+
+class DataBuffer <<Packet>>
+
+DataSource <|- - GenericSource
+DataSource <|- - BufferedGenericSource
+
+DataProvider <|- - SingleSourceDataProvider
+
+DataReader <|- - GenericPacketReader
+EsPlayerPresenter - -|> DataPresenter
+class SeekDirection <<enum>>
+
+
+DataProvider <- DataReader : implementation use
+DataReader -up..> ESPlayer : implementation uses via\nPresentPacketDelegate
+
+class PresentPacketResult <<enum>>
+DataReader -> PresentPacketResult : Implementation uses
+FFmpegDemuxer <- DataSource : implementation uses
+DataSource <- DataProvider : implementation uses
+
+DataPresenter -down-> DataProvider : implementation uses
+DataPresenter -down-> DataReader : implementation uses
+DataPresenter -> SeekDirection : implementation uses
+GenericPacketReader -down-> GenericScheduler : use
+EsPlayerPresenter -> ESPlayer : use
+
+BufferedGenericSource -down-> DataBuffer : use
+
+DataSource -up-> DataSourceOptions : implementation use
+
+class PresentPacketResult
+{
+    Success
+    Retry
+    Fail
+}
+
+class SeekDirection
+{
+    Forward
+    Backward
+}
+
+class DataSource
+{
+    - - methods - -
+    Task<ClipConfiguration> Open()
+    Task<Packet> NextPacket( CancellationToken )
+    Task<TimeSpan> Seek( TimeSpan )
+    Task<bool> Suspend()
+    Task<bool> Resume()
+    - -
+    DataSource Add( param string[] )
+    With( DataSourceOptions )
+    WithHandler( ErrorDelegate )
+    - -
+    Dispose()
+}
+
+class GenericSource
+{
+    - - fields - -
+    string[] _sourceUrls;
+    FFmpegDemuxer _demuxer
+    DataSourceOptions _options
+    CancellationTokenSource _sessionCts
+}
+
+class BufferedGenericSource
+{
+    - - fields - -
+    string[] _sourceUrls
+    FFmpegDemuxer _demuxer
+    DataSourceOptions _options
+    CancellationTokenSource _sessionCts
+    DataBuffer<Packet> _buffer
+    Task<Task> _bufferWriteLoopTaskTask
+    event ErrorDelegate ErrorHandler
+    - - methods - -
+    Task BufferWriteLoop( CancellationToken )
+    CancellationToken NewSession()
+    StartBufferWriteLoop( CancellationToken )
+}
+
+class DataBuffer
+{
+    - - fields - -
+    Channel<T> _dataBufferChannel
+    - - methods - -
+    bool Add( T data );
+    ValueTask<T> Take( CancellationToken )
+    - -
+    Dispose()
+}
+
+
+class DataProvider
+{
+    - - properties - -
+    ClipConfiguration CurrentConfiguration
+    - - methods - -
+    ClipConfiguration GetCurrentConfiguration()
+    Task<ClipConfiguration> Open( CancellationToken )
+    Task<Packet> NextPacket( CancellationToken )
+    Task<TimeSpan> Seek( TimeSpan, CancellationToken )
+    - -
+    DataProvider Add( param DataSource[] )
+    - -
+    Dispose()
+}
+
+class SingleSourceDataProvider
+{
+    - - fields- -
+    DataSource _dataSource
+}
+
+class DataPresenter
+{
+    - - methods - -
+    Task Open( Window )
+    Task Seek( SeekDirection )
+    Task Suspend()
+    Task Resume()
+    - -
+    DataPresenter With( FactoryDelegate<DataReader> )
+    DataPresenter WithHandlers( EosDelegate, ErrorDelegate )
+    - -
+    Dispose()
+}
+
+class EsPlayerPresenter
+{
+    - - fields - -
+    TimeSpan SeekDistance
+    ESPlayer _esPlayer
+    DataProvider _dataProvider
+    FactoryDelegate<DataReader> _createDataReader
+    DataReader _dataReaderSession
+    event EosDelegate EosHandler
+    event ErrorDelegate ErrorHandler
+    - - methods - -
+    EsPlayerPresenter()
+    TimeSpan SeekNextPosition( SeekDirection, TimeSpan )
+    ESPlayer CreateESplayer( Window )
+    OnEos( object, EOSEventArgs )
+    OnError( object, ErrorEventArgs )
+    OnBufferStatusChanged( object, BufferStatusEventArgs )
+    (Task, Task) PrepareESplayer( ESPlayer, ClipConfiguration )
+    (Task, Task) SeekESplayer(ESPlayer, TimeSpan, int)
+    - -
+    PresentPacketResult PresentPacket( Packet )
+}
+
+class DataReader
+{
+    - - methods - -
+    Func<DataReader> CreateFactoryFor<TDataReader>()
+    - -
+    DataReader With( DataProvider, PresentPacketDelegate );
+    DataReader AddHandler( ErrorDelegate )
+    - -
+    Dispose()
+    Task DisposeAsync()
+}
+
+class GenericPacketReader
+{
+    - - fields - -
+    TimeSpan ResubitDelay
+    CancellationTokenSource _readSessionCts
+    Task<Task> _readLoopTaskTask
+    ErrorDelegate _ErrorHandler
+    - - methods - -
+    ReadLoop( DataProvider, PresentPacketDelegate, CancellationToken )
+}
+
+class GenericScheduler
+{
+    - - fields - -
+    TimeSpan BufferedDuration
+    TimeSpan DelayThreshold
+    Stopwatch _stopwatch
+    TimeSpan _schedulingOffset
+    - - methods - -
+    TimeSpan Schedule( Packet )
+    - -
+    Dispose()
+}
+
+class DataSourceOptions
+{
+    - - properties - -
+    ReadOnlyCollection<KeyValuePair<string, object>> Options
+    - - fields - -
+    List<KeyValuePair<string, object>> _options
+    - - methods - -
+    DataSourceOptions Set( string, string )
+    DataSourceOptions Set( string, long )
+    DataSourceOptions Clear( string ) 
+}
+
+@enduml
+
+PlantUML version 1.2020.20(Sat Nov 21 11:02:45 CET 2020)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: Cp1250
+Language: en
+Country: GB
+--></g></svg>

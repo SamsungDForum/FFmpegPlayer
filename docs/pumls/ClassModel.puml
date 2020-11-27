@@ -1,0 +1,221 @@
+@startuml ClassModel
+hide circle
+
+class DataSource <<abstract>>
+class GenericSource <<FFmpeg>>
+class BufferedGenericSource <<FFmpeg>>
+class FFmpegDemuxer
+
+class DataProvider <<abstract>>
+class SingleSourceDataProvider 
+
+class DataReader <<abstract>>
+class GenericPacketReader
+class GenericScheduler
+
+class DataPresenter <<abstract>>
+class EsPlayerPresenter
+
+class DataBuffer <<Packet>>
+
+DataSource <|-- GenericSource
+DataSource <|-- BufferedGenericSource
+
+DataProvider <|-- SingleSourceDataProvider
+
+DataReader <|-- GenericPacketReader
+EsPlayerPresenter --|> DataPresenter
+class SeekDirection <<enum>>
+
+
+DataProvider <- DataReader : implementation use
+DataReader -up..> ESPlayer : implementation uses via\nPresentPacketDelegate
+
+class PresentPacketResult <<enum>>
+DataReader -> PresentPacketResult : Implementation uses
+FFmpegDemuxer <- DataSource : implementation uses
+DataSource <- DataProvider : implementation uses
+
+DataPresenter -down-> DataProvider : implementation uses
+DataPresenter -down-> DataReader : implementation uses
+DataPresenter -> SeekDirection : implementation uses
+GenericPacketReader -down-> GenericScheduler : use
+EsPlayerPresenter -> ESPlayer : use
+
+BufferedGenericSource -down-> DataBuffer : use
+
+DataSource -up-> DataSourceOptions : implementation use
+
+class PresentPacketResult
+{
+    Success
+    Retry
+    Fail
+}
+
+class SeekDirection
+{
+    Forward
+    Backward
+}
+
+class DataSource
+{
+    -- methods --
+    Task<ClipConfiguration> Open()
+    Task<Packet> NextPacket( CancellationToken )
+    Task<TimeSpan> Seek( TimeSpan )
+    Task<bool> Suspend()
+    Task<bool> Resume()
+    --
+    DataSource Add( param string[] )
+    With( DataSourceOptions )
+    WithHandler( ErrorDelegate )
+    --
+    Dispose()
+}
+
+class GenericSource
+{
+    -- fields --
+    string[] _sourceUrls;
+    FFmpegDemuxer _demuxer
+    DataSourceOptions _options
+    CancellationTokenSource _sessionCts
+}
+
+class BufferedGenericSource
+{
+    -- fields --
+    string[] _sourceUrls
+    FFmpegDemuxer _demuxer
+    DataSourceOptions _options
+    CancellationTokenSource _sessionCts
+    DataBuffer<Packet> _buffer
+    Task<Task> _bufferWriteLoopTaskTask
+    event ErrorDelegate ErrorHandler
+    -- methods --
+    Task BufferWriteLoop( CancellationToken )
+    CancellationToken NewSession()
+    StartBufferWriteLoop( CancellationToken )
+}
+
+class DataBuffer
+{
+    -- fields --
+    Channel<T> _dataBufferChannel
+    -- methods --
+    bool Add( T data );
+    ValueTask<T> Take( CancellationToken )
+    --
+    Dispose()
+}
+
+
+class DataProvider
+{
+    -- properties --
+    ClipConfiguration CurrentConfiguration
+    -- methods --
+    ClipConfiguration GetCurrentConfiguration()
+    Task<ClipConfiguration> Open( CancellationToken )
+    Task<Packet> NextPacket( CancellationToken )
+    Task<TimeSpan> Seek( TimeSpan, CancellationToken )
+    --
+    DataProvider Add( param DataSource[] )
+    --
+    Dispose()
+}
+
+class SingleSourceDataProvider
+{
+    -- fields--
+    DataSource _dataSource
+}
+
+class DataPresenter
+{
+    -- methods --
+    Task Open( Window )
+    Task Seek( SeekDirection )
+    Task Suspend()
+    Task Resume()
+    --
+    DataPresenter With( FactoryDelegate<DataReader> )
+    DataPresenter WithHandlers( EosDelegate, ErrorDelegate )
+    --
+    Dispose()
+}
+
+class EsPlayerPresenter
+{
+    -- fields --
+    TimeSpan SeekDistance
+    ESPlayer _esPlayer
+    DataProvider _dataProvider
+    FactoryDelegate<DataReader> _createDataReader
+    DataReader _dataReaderSession
+    event EosDelegate EosHandler
+    event ErrorDelegate ErrorHandler
+    -- methods --
+    EsPlayerPresenter()
+    TimeSpan SeekNextPosition( SeekDirection, TimeSpan )
+    ESPlayer CreateESplayer( Window )
+    OnEos( object, EOSEventArgs )
+    OnError( object, ErrorEventArgs )
+    OnBufferStatusChanged( object, BufferStatusEventArgs )
+    (Task, Task) PrepareESplayer( ESPlayer, ClipConfiguration )
+    (Task, Task) SeekESplayer(ESPlayer, TimeSpan, int)
+    --
+    PresentPacketResult PresentPacket( Packet )
+}
+
+class DataReader
+{
+    -- methods --
+    Func<DataReader> CreateFactoryFor<TDataReader>()
+    --
+    DataReader With( DataProvider, PresentPacketDelegate );
+    DataReader AddHandler( ErrorDelegate )
+    --
+    Dispose()
+    Task DisposeAsync()
+}
+
+class GenericPacketReader
+{
+    -- fields --
+    TimeSpan ResubitDelay
+    CancellationTokenSource _readSessionCts
+    Task<Task> _readLoopTaskTask
+    ErrorDelegate _ErrorHandler
+    -- methods --
+    ReadLoop( DataProvider, PresentPacketDelegate, CancellationToken )
+}
+
+class GenericScheduler
+{
+    -- fields --
+    TimeSpan BufferedDuration
+    TimeSpan DelayThreshold
+    Stopwatch _stopwatch
+    TimeSpan _schedulingOffset
+    -- methods --
+    TimeSpan Schedule( Packet )
+    --
+    Dispose()
+}
+
+class DataSourceOptions
+{
+    -- properties --
+    ReadOnlyCollection<KeyValuePair<string, object>> Options
+    -- fields --
+    List<KeyValuePair<string, object>> _options
+    -- methods --
+    DataSourceOptions Set( string, string )
+    DataSourceOptions Set( string, long )
+    DataSourceOptions Clear( string ) 
+}
+
+@enduml
