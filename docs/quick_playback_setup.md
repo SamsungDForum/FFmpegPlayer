@@ -84,8 +84,8 @@ DataPresenter presenter = new EsPlayerPresenter()
 ```
 
 ---
-## Setup start
-DataPresenter.Open() does this. Requires an ElmSharp window to be provided.
+## Playback start
+Created presenter is started using DataReader.Open() method. DataReader.Open() requires an ElmSharp window to be provided.
 
 ---
 ## Logging
