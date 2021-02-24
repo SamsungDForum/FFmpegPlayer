@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Demuxer.Common;
@@ -141,7 +140,7 @@ namespace Demuxer.FFmpeg
 
         private void ReadContentProtectionConfigs(ref ClipConfiguration configuration)
         {
-            configuration.DrmInitDatas = formatContext.DRMInitData.ToList();
+            configuration.DrmInitDatas = formatContext.DRMInitData;
         }
 
         private void InitEs()

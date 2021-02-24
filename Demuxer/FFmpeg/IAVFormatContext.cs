@@ -27,7 +27,7 @@ namespace Demuxer.FFmpeg
         TimeSpan MaxAnalyzeDuration { get; set; }
         IAVIOContext AVIOContext { get; set; }
         TimeSpan Duration { get; }
-        DrmInitData[] DRMInitData { get; }
+        DrmInitData DRMInitData { get; }
         Func<int> IoInterrupt { set; }
         bool Pause();
         bool Play();

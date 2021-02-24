@@ -187,8 +187,8 @@ namespace Demuxer
             foreach (var streamConfig in configuration.StreamConfigs ?? new List<StreamConfig>())
                 streamConfigSubject.OnNext(streamConfig);
 
-            foreach (var drmInitData in configuration.DrmInitDatas ?? new List<DrmInitData>())
-                drmInitDataSubject.OnNext(drmInitData);
+            if (configuration.DrmInitDatas != null)
+                drmInitDataSubject.OnNext(configuration.DrmInitDatas);
         }
 
         private void ScheduleNextPacketToDemux()

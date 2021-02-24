@@ -26,7 +26,7 @@ namespace Demuxer
     public struct ClipConfiguration
     {
         public IList<StreamConfig> StreamConfigs { get; set; }
-        public IList<DrmInitData> DrmInitDatas { get; set; }
+        public DrmInitData DrmInitDatas { get; set; }
         public TimeSpan Duration { get; set; }
     }
 

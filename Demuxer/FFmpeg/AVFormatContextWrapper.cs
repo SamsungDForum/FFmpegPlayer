@@ -18,15 +18,17 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using Demuxer.Common;
 using Interop = FFmpegBindings.Interop;
-using FFmpegMacros = FFmpegBindings.Interop.FFmpegMacros;
+using FFmpegMacros = FFmpegBindings.Interop.FFmpeg;
 
 using Logger = Common.Log;
 using FFmpegBindings.Interop;
+
 
 namespace Demuxer.FFmpeg
 {
@@ -93,7 +95,7 @@ namespace Demuxer.FFmpeg
             : TimeSpan.Zero;
 
 
-        public DrmInitData[] DRMInitData => GetDRMInitData();
+        public DrmInitData DRMInitData => GetDrmInitData();
 
         public bool Pause()
         {
@@ -115,31 +117,99 @@ namespace Demuxer.FFmpeg
             return result;
         }
 
-        private DrmInitData[] GetDRMInitData()
+        private static int SwapEndianess(int value)
         {
-            var result = new List<DrmInitData>();
+            var t = 0xff;
+            var b1 = (value >> 0) & t;
+            var b2 = (value >> 8) & t;
+            var b3 = (value >> 16) & t;
+            var b4 = (value >> 24) & t;
 
-            if (formatContext->protection_system_data_count <= 0)
-                return result.ToArray();
-            for (uint i = 0; i < formatContext->protection_system_data_count; ++i)
+            return b1 << 24 | b2 << 16 | b3 << 8 | b4 << 0;
+        }
+
+        private byte[] BuildPsshAtom(AVEncryptionInitInfo* e)
+        {
+            int psshBoxLength = 8 /*HEADER*/ + 16 /*SysID*/ + 4 /*DataSize*/ + (int)e->data_size + 4 /*version*/;
+            if (e->key_ids != null && e->num_key_ids != 0)
             {
-                var systemData = formatContext->protection_system_data[i];
-                if (systemData.pssh_box_size <= 0)
-                    continue;
-
-                var drmData = new DrmInitData
-                {
-                    SystemId = systemData.system_id.ToArray(),
-                    InitData = new byte[systemData.pssh_box_size],
-                    DataType = DrmInitDataType.Pssh,
-                    KeyIDs = null   // Key are embedded in DataType.
-                };
-
-                Marshal.Copy((IntPtr)systemData.pssh_box, drmData.InitData, 0, (int)systemData.pssh_box_size);
-                result.Add(drmData);
+                psshBoxLength += 4 /*KID_count*/ + ((int)e->num_key_ids * 16);
             }
 
-            return result.ToArray();
+            var stream = new MemoryStream();
+            using (var writer = new BinaryWriter(stream))
+            {
+                writer.Write(SwapEndianess(psshBoxLength));
+
+                foreach (var c in "pssh") writer.Write(c);
+
+                writer.Write(e->key_ids != null && e->num_key_ids != 0 ? SwapEndianess(0x01000000) : 0x00000000);
+
+                for (int i = 0; i < 16; i++)
+                {
+                    writer.Write(e->system_id[i]);
+                }
+
+                if (e->key_ids != null && e->num_key_ids != 0)
+                {
+                    writer.Write(SwapEndianess((int)e->num_key_ids));
+                    for (int i = 0; i < e->num_key_ids; i++)
+                    {
+                        for (int j = 0; j < 16; j++)
+                        {
+                            writer.Write(e->key_ids[i][j]);
+                        }
+                    }
+                }
+
+                if (e->data != null && e->data_size != 0)
+                {
+                    writer.Write(SwapEndianess((int)e->data_size));
+                    for (int i = 0; i < e->data_size; i++)
+                    {
+                        writer.Write(e->data[i]);
+                    }
+                }
+                else
+                {
+                    writer.Write(0);
+                }
+
+                return stream.ToArray();
+            }
+        }
+
+
+        private DrmInitData GetDrmInitData()
+        {
+            var f = formatContext;
+            var result = new List<byte>();
+            if (f->nb_streams > 0)
+            {
+                int size;
+                var enc = FFmpegMacros.av_stream_get_side_data(
+                    f->streams[0],
+                    AVPacketSideDataType.AV_PKT_DATA_ENCRYPTION_INIT_INFO,
+                    &size);
+
+                if (enc != null)
+                {
+                    var data = FFmpegMacros.av_encryption_init_info_get_side_data(enc, (ulong)size);
+
+                    while (data != null)
+                    {
+                        var psshBox = BuildPsshAtom(data).ToList();
+                        result.AddRange(psshBox);
+                        data = data->next;
+                    }
+                }
+            }
+
+            return new DrmInitData
+            {
+                DataType = DrmInitDataType.Cenc,
+                Data = result.ToArray()
+            };
         }
 
         public void Open()
@@ -183,7 +253,7 @@ namespace Demuxer.FFmpeg
                     Logger.Fatal(errorMsg);
                     throw new FFmpegException(errorMsg);
                 }
-                    
+
             }
         }
 

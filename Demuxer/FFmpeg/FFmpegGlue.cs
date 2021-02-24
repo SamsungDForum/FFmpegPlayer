@@ -19,7 +19,7 @@ using System;
 using System.Runtime.InteropServices;
 using Logger = Common.Log;
 using Interop = FFmpegBindings.Interop;
-using FFmpegMacros = FFmpegBindings.Interop.FFmpegMacros;
+using FFmpegMacros = FFmpegBindings.Interop.FFmpeg;
 
 namespace Demuxer.FFmpeg
 {
